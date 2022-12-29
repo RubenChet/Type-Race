@@ -1,6 +1,6 @@
 <template>
-    <div class="flex justify-center mt-20">
-        <div v-if="!roomState" class="flex-row text-center">
+    <div class="justify-center mt-20">
+        <div v-if="!roomState" class="flex flex-row text-center">
             <input type="text" v-model="name" placeholder="Choisir un Pseudo" />
             <H1>Join a Public Room</H1>
             <div class="room-div">
@@ -8,10 +8,10 @@
                 <button @click="joinRoom(this.room)">Join</button>
             </div>
         </div>
+        
         <div v-else>
             <WaitRoomVue />
         </div>
-
     </div>
 
 </template>

@@ -4,10 +4,10 @@
             <ResultVue />
         </div>
         <div v-else v-for="(word, index) in game.words" :key="index" class="flex mr-2"
-            v-bind:class="{ 'active': index === wordIdx, 'underline decoration-red-500': letterColors[index].includes('red') && spacePressed[index] }">
+            v-bind:class="{ 'active': index === word_index, 'underline decoration-red-500': game.letters[index].includes('red') && spacePressed[index] }">
             <p v-for="(letter, idx) in word" :key="idx"
                 v-bind:class="{ 'cursor': idx === currentLetter, 'aimer': idx === word.length - 1 && idx === currentLetter - 1 }"
-                :style="{ color: letterColors[index][idx] }">
+                :style="{ color: game.letters[index][idx] }">
                 {{ letter }}
             </p>
         </div>
@@ -58,9 +58,8 @@ export default {
 
         return {
             currentLetter: 0,
-            wordIdx: 0,
-            letterColors: [],
-            validate: [],
+            word_index: 0,
+            words_list_copy: [],
             word_is_valid: [],
             spacePressed: [],
         };
@@ -72,24 +71,24 @@ export default {
         typing_test(e) {
             if (e.key === "Backspace") {
                 // Supprime le dernier caractère de la chaîne de caractères
-                if (this.game.words[this.wordIdx] === this.validate[this.wordIdx]) {
+                if (this.game.words[this.word_index] === this.words_list_copy[this.word_index]) {
                     if (this.currentLetter > 0) {
                         this.currentLetter--
-                        this.letterColors[this.wordIdx][this.currentLetter] = "#646669"
+                        this.game.letters[this.word_index][this.currentLetter] = "#646669"
                     }
-                    if (this.wordIdx > 0) {
-                        if (this.word_is_valid[this.wordIdx - 1] == false && this.currentLetter == 0) {
-                            this.wordIdx--
-                            this.currentLetter = this.game.words[this.wordIdx].length
+                    if (this.word_index > 0) {
+                        if (this.word_is_valid[this.word_index - 1] == false && this.currentLetter == 0) {
+                            this.word_index--
+                            this.currentLetter = this.game.words[this.word_index].length
                             this.word_is_valid.pop()
                             this.spacePressed.pop()
                         }
                     }
                 }
                 else {
-                    this.game.words[this.wordIdx] = this.game.words[this.wordIdx].substring(0, this.game.words[this.wordIdx].length - 1);
+                    this.game.words[this.word_index] = this.game.words[this.word_index].substring(0, this.game.words[this.word_index].length - 1);
                     this.currentLetter--
-                    this.letterColors[this.wordIdx].pop()
+                    this.game.letters[this.word_index].pop()
                 }
             }
             else {
@@ -99,32 +98,32 @@ export default {
         },
         letter_listener(elem) {
             const typedLetter = elem.key;
-            const displayedLetter = this.game.words[this.wordIdx][this.currentLetter];
+            const displayedLetter = this.game.words[this.word_index][this.currentLetter];
             // On vérifie si la bonne lettre à été tapé
-            if (this.currentLetter >= this.validate[this.wordIdx].length) {
+            if (this.currentLetter >= this.words_list_copy[this.word_index].length) {
                 if (typedLetter === " ") {
                     this.spacePressed.push(true);
-                    this.word_is_valid.push(this.check_letter_value(this.letterColors[this.wordIdx], this.wordIdx))
-                    this.wordIdx++;
+                    this.word_is_valid.push(this.check_letter_value(this.game.letters[this.word_index], this.word_index))
+                    this.word_index++;
                     this.currentLetter = 0;
                 }
                 else {
-                    this.letterColors[this.wordIdx].push("red")
-                    this.game.words[this.wordIdx] += typedLetter
+                    this.game.letters[this.word_index].push("red")
+                    this.game.words[this.word_index] += typedLetter
                     this.currentLetter++
                 }
 
             } else {
                 if (typedLetter === displayedLetter) {
-                    this.letterColors[this.wordIdx][this.currentLetter] = "white";
+                    this.game.letters[this.word_index][this.currentLetter] = "white";
                     this.currentLetter++;
                 }
                 else {
-                    this.letterColors[this.wordIdx][this.currentLetter] = "red";
+                    this.game.letters[this.word_index][this.currentLetter] = "red";
                     this.currentLetter++;
                 }
             }
-            if (this.wordIdx + 1 == this.game.words.length && this.currentLetter == this.game.words[this.wordIdx].length) {
+            if (this.word_index + 1 == this.game.words.length && this.currentLetter == this.game.words[this.word_index].length) {
                 this.game.isFinished = true
             }
             window.removeEventListener("keypress", this.letter_listener)
@@ -135,7 +134,7 @@ export default {
                     return false;
                 }
             }
-            if (arr.length == this.validate[idx].length) {
+            if (arr.length == this.words_list_copy[idx].length) {
                 return true;
             } else {
                 return false
@@ -144,11 +143,14 @@ export default {
         },
     },
     created() {
-        this.letterColors = this.game.letters
-        this.validate = this.game.words.slice()
+        this.game.letters = this.game.letters
+        this.words_list_copy = this.game.words.slice()
     },
     mounted() {
         window.addEventListener('keydown', this.typing_test)
+    },
+    unmounted() {
+        window.removeEventListener('keydown', this.typing_test)
     },
     watch: {
         'game.isFinished': function (val) {
@@ -161,15 +163,15 @@ export default {
             this.game.words = scriptFile.makeWordsList();
             this.game.timer = this.game.game_time
             this.currentLetter = 0
-            this.wordIdx = 0
-            this.letterColors = []
-            this.validate = []
+            this.word_index = 0
+            this.game.letters = []
+            this.words_list_copy = []
             this.word_is_valid = []
             this.spacePressed = []
-            this.letterColors = scriptFile.makeColors(this.game.words)
-            this.validate = this.game.words.slice()
+            this.game.letters = scriptFile.makeColors(this.game.words)
+            this.words_list_copy = this.game.words.slice()
             window.addEventListener('keydown', this.typing_test)
-        }
+        },
     }
 };
 </script>

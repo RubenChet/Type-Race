@@ -8,7 +8,7 @@
                         <TimerVue />
                     </div>
                     <div id="InputContainer" class="mt-2 flex justify-center h-64 overflow-hidden">
-                        <TyperVue />
+                        <SoloTyperVue />
                     </div>
                 </div>
             </div>
@@ -16,7 +16,7 @@
     </div>
 </template>
 <script>
-import TyperVue from "./Typer.vue";
+import SoloTyperVue from "./SoloTyper.vue";
 import TimerVue from "./Timer.vue";
 import { useGameStore } from "../store/game";
 import scriptFile from "../scripts/words";
@@ -27,7 +27,7 @@ export default {
         return { game };
     },
     components: {
-        TyperVue,
+        SoloTyperVue,
         TimerVue,
     },
     created() {

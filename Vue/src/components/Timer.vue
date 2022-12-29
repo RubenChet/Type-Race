@@ -38,6 +38,9 @@ export default {
         this.game.timer = this.game.game_time
         window.addEventListener("keypress", this.clock)
     },
+    unmounted() {
+        window.removeEventListener('keypress', this.clock)
+    },
     watch: {
         'game.isFinished': function (val) {
             if (val == true) {

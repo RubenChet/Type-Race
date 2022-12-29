@@ -36,5 +36,8 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("client-finish", () => {});
+  socket.on("client-finish", (room, cb) => {
+    cb('vous avez fini')
+    io.to(room).emit('game-finished', 'some1 a fini')
+  });
 });

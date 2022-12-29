@@ -1,17 +1,31 @@
 <template>
-    <div class="flex justify-center mt-20 ">
-        <div id="WaitRoom" v-if="!countdown">
-            <button @click="isReady(game.room), clicked = !clicked"
-                v-bind:class="{ 'text-red-500': !clicked, 'text-green-500': clicked }">Ready</button>
-        </div>
-        <div v-else-if="countdown && seconds > 0">{{ seconds }}</div>
-        <div v-else-if="seconds == 0">
-            <MultiVue class="flex w-1/2" />
-        </div>
+    <div v-if="clicked && seconds > 0">{{ seconds }}</div>
+    <div v-else-if="game.isRunning == true">
+        <MultiVue />
     </div>
+    <div id="WaitRoom" v-else class="flex justify-center space-x-48">
+        <div id="InputContainer">Chat</div>
+        <div>
+            <div id="InputContainer" class="flex justify-center">
+                <ResultVue />
+            </div>
+            <div class="flex place-content-around mt-5">
+                <div id="InputContainer">
+                    Players list :
+                </div>
+
+                <button @click="isReady(), clicked = !clicked"
+                    v-bind:class="{ 'text-red-500': !clicked, 'text-green-500': clicked }">Ready</button>
+            </div>
+
+        </div>
+
+    </div>
+
 </template>
 <script>
 import MultiVue from "./Multi.vue";
+import ResultVue from './Result.vue'
 import { useGameStore } from '../store/game'
 export default {
     setup() {
@@ -21,17 +35,17 @@ export default {
     data() {
         return {
             clicked: false,
-            countdown: false,
             interval: null,
-            seconds: 3,
+            seconds: null,
         }
     },
     components: {
         MultiVue,
+        ResultVue,
     },
     methods: {
-        isReady(val) {
-            this.game.socket.emit("client-ready", val, callback => {
+        isReady() {
+            this.game.socket.emit("client-ready", this.game.room, callback => {
                 console.log(callback)
             })
         },
@@ -40,6 +54,8 @@ export default {
                 this.seconds--;
                 if (this.seconds === 0) {
                     clearInterval(this.interval);
+                    this.game.isRunning = true
+                    this.clicked = false
                 }
             }, 1000);
         }
@@ -47,8 +63,9 @@ export default {
     created() {
         this.game.socket.on('game-ready', (val) => {
             this.game.words = val.wordlist
-            // this.game.letters = val.letters
-            this.countdown = true
+            this.game.letters = val.letters
+            this.seconds = 3
+            console.log(this.game.isRunning)
             this.clock()
         })
     },
