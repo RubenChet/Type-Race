@@ -17,29 +17,15 @@ export default {
     },
     data() {
         return {
-            correct: this.game.words_state.filter(item => item === true).length,
-            incorrect: this.game.words_state.filter(item => item === false).length,
+            correct: this.game.words_state.filter(item => item == true).length,
+            incorrect: this.game.words_state.filter(item => item == false).length,
             wpm: 0,
         }
     },
-    methods: {
-        toWPM() {
-            const minutes = 0
-            minutes = this.game.game_time / 60;
-            // Calcule le nombre de mots par minute
-            const wordsPerMinute = this.correct / minutes;
-            // Retourne le résultat
-            return wordsPerMinute;
-        },
-        next() {
-            this.game.isFinished = !this.game.isFinished
-            this.game.num_game++
-        }
-    },
     mounted() {
-        // if (this.game.words_state) {
-        //     this.wpm = this.toWPM()
-        // }
+        if (this.game.words_state.length) {
+            this.wpm = (this.correct / (this.game.game_time / 60)).toFixed(0)
+        }
     }
 }
 </script>

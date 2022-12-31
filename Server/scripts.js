@@ -17,7 +17,7 @@ function makeColors(arr) {
     for (let idx = 0; idx < arr[index].length; idx++) {
       row.push("#646669");
     }
-    newArr.push(row);
+    newArr.push(row); 
   }
   return newArr;
 }

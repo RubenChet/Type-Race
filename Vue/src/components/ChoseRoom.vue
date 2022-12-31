@@ -1,14 +1,13 @@
 <template>
-    <div class="justify-center mt-20">
-        <div v-if="!roomState" class="flex flex-row text-center">
-            <input type="text" v-model="name" placeholder="Choisir un Pseudo" />
-            <H1>Join a Public Room</H1>
-            <div class="room-div">
-                <input type="text" v-model="room" placeholder="Enter the RoomNumber" />
-                <button @click="joinRoom(this.room)">Join</button>
+    <div class="flex justify-center mt-20">
+        <div v-if="!roomState" class="flex flex-col text-center">
+            <input type="text" v-model="game.nickname" placeholder="Choose a nickname" />
+            <div>
+                <input type="text" v-model="game.room" placeholder="Enter the RoomTag" />
+                <button @click="joinRoom(game.room)">Join</button>
             </div>
         </div>
-        
+
         <div v-else>
             <WaitRoomVue />
         </div>
@@ -27,21 +26,27 @@ export default {
     data() {
         return {
             roomState: false,
+            roomType: "",
         }
     },
     components: {
         WaitRoomVue,
     },
+    mounted() {
+
+    },
     created() {
-        this.game.socket = io('http://localhost:3000');
-        this.game.socket.on('connect', () => { });
+
     },
     methods: {
-        joinRoom(val) {
-            this.game.socket.emit("join-room", val, callback => {})
-            this.game.room = val
+        joinRoom() {
+            this.game.socket = io('http://localhost:3000');
+            this.game.socket.on('connect', () => { });
+            this.game.socket.emit("join-room", this.game.room, this.game.nickname, callback => {
+                this.game.nickname = callback
+            })
             this.roomState = !this.roomState
-        }
+        },
     },
 }
 </script>

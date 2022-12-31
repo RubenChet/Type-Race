@@ -10,8 +10,15 @@
                 <ResultVue />
             </div>
             <div class="flex place-content-around mt-5">
-                <div id="InputContainer">
-                    Players list :
+                <div id="InputContainer" class="flex">
+                    <div class="flex-col">
+                        <div v-for="(player, index) in game.playerslist" :key="index" class="flex">
+                            <p>{{ player.nickname }}</p>
+                            <p v-if="player.isReady == false" class="text-red-500">Not Ready</p>
+                            <p v-if="player.isReady == true" class="text-green-500">is Ready</p>
+                            <p  v-if="game.socket.id != player.id" @click="kickPlayer(player.id)">Kick</p>
+                        </div>
+                    </div>
                 </div>
 
                 <button @click="isReady(), clicked = !clicked"
@@ -45,9 +52,7 @@ export default {
     },
     methods: {
         isReady() {
-            this.game.socket.emit("client-ready", this.game.room, callback => {
-                console.log(callback)
-            })
+            this.game.socket.emit("client-ready", this.game.room)
         },
         clock() {
             this.interval = setInterval(() => {
@@ -58,16 +63,28 @@ export default {
                     this.clicked = false
                 }
             }, 1000);
+        },
+        kickPlayer(val) {
+            this.game.socket.emit("ask-kick", val)
         }
     },
     created() {
         this.game.socket.on('game-ready', (val) => {
+            this.game.isFinished = false
             this.game.words = val.wordlist
             this.game.letters = val.letters
             this.seconds = 3
-            console.log(this.game.isRunning)
             this.clock()
         })
+        this.game.socket.on('playerslist-update', (val) => {
+            this.game.playerslist = val
+        })
+        this.game.socket.on('got-kick', () => {
+            alert("This is an alert dialog box");
+        })
+    },
+    mounted() {
+        this.game.isFinished = false
     },
 }
 </script>

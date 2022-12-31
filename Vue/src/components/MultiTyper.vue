@@ -12,7 +12,6 @@
 </template>
 <script>
 import { useGameStore } from '../store/game'
-import scriptFile from '../scripts/words'
 export default {
     setup() {
         const game = useGameStore()
@@ -26,6 +25,7 @@ export default {
             words_list_copy: [],
             word_is_valid: [],
             spacePressed: [],
+            interval: null,
         };
     },
     methods: {
@@ -84,10 +84,12 @@ export default {
                     this.currentLetter++;
                 }
             }
-            if (this.word_index + 1 == this.game.words.length && this.currentLetter == this.game.words[this.word_index].length) {
-                this.game.isFinished = true
-            }
             window.removeEventListener("keypress", this.letter_listener)
+            if (this.word_index + 1 == this.game.words.length && this.currentLetter == this.game.words[this.word_index].length) {
+                this.game.socket.emit("client-finish", this.game.room, callback => {
+                    console.log(callback)
+                })
+            }
         },
         check_letter_value(arr, idx) {
             for (let i = 0; i < arr.length; i++) {
@@ -102,42 +104,31 @@ export default {
             }
 
         },
+        clock(){
+            this.game.game_time = 0
+            this.interval = setInterval(() => {
+                this.game.game_time++;
+                if (this.game.isFinished == true) {
+                    clearInterval(this.interval);
+                }
+            }, 1000);
+        }
+
     },
     created() {
-        this.game.letters = this.game.letters
         this.words_list_copy = this.game.words.slice()
 
         this.game.socket.on('game-finished', (val) => {
+            window.removeEventListener("keydown", this.typing_test)
             this.game.isRunning = false
+            this.game.isFinished = true
+            this.game.words_state = this.word_is_valid
         })
     },
     mounted() {
-        console.log('jesuisla')
         window.addEventListener('keydown', this.typing_test)
+        this.clock()
     },
-    watch: {
-        'game.isFinished': function (val) {
-            if (val == true) {
-                this.game.socket.emit("client-finish", this.game.room, callback => {
-                    console.log(callback)
-                })
-                this.game.words_state = this.word_is_valid
-            }
-        },
-        'game.num_game': function () {
-            this.game.words = scriptFile.makeWordsList();
-            this.game.timer = this.game.game_time
-            this.currentLetter = 0
-            this.word_index = 0
-            this.game.letters = []
-            this.words_list_copy = []
-            this.word_is_valid = []
-            this.spacePressed = []
-            this.game.letters = scriptFile.makeColors(this.game.words)
-            this.words_list_copy = this.game.words.slice()
-            window.addEventListener('keydown', this.typing_test)
-        }
-    }
 };
 </script>
 <style scoped>

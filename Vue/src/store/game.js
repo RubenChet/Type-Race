@@ -4,8 +4,10 @@ export const useGameStore = defineStore("game", {
   state: () => ({
     socket: null,
     room: "",
+    nickname: "",
     words: [],
     letters: [],
+    playerslist: [],
     isRunning: false,
     isFinished: false,
     mode: "",
