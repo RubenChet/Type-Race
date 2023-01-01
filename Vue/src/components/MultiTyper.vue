@@ -1,9 +1,10 @@
 <template>
     <div class="flex justify-center flex-wrap m-7 overflow-hidden w-full">
         <div v-for="(word, index) in game.words" :key="index" class="flex mr-2"
-            v-bind:class="{ 'active': index === word_index, 'underline decoration-red-500': game.letters[index].includes('red') && spacePressed[index] }">
+            v-bind:class="{ 'animate__animated animate__headShake': index === word_index && makeBounce == true, 'underline decoration-red-500': index === word_index && underlineRed == true }"
+            @animationend="makeBounce = false, underlineRed = false">
             <p v-for="(letter, idx) in word" :key="idx"
-                v-bind:class="{ 'cursor': idx === currentLetter, 'aimer': idx === word.length - 1 && idx === currentLetter - 1 }"
+                v-bind:class="{ 'cursor': idx === currentLetter && index === word_index, 'underline': idx === currentLetter && index === word_index && caretTyped == true, 'cursor_next': idx === word.length - 1 && idx === currentLetter - 1 && index === word_index }"
                 :style="{ color: game.letters[index][idx] }">
                 {{ letter }}
             </p>
@@ -12,6 +13,7 @@
 </template>
 <script>
 import { useGameStore } from '../store/game'
+import 'animate.css'
 export default {
     setup() {
         const game = useGameStore()
@@ -24,12 +26,15 @@ export default {
             word_index: 0,
             words_list_copy: [],
             word_is_valid: [],
-            spacePressed: [],
+            caretTyped: false,
             interval: null,
+            makeBounce: false,
+            underlineRed: false
         };
     },
     methods: {
         typing_test(e) {
+            this.caretTyped = false
             if (e.key === "Backspace") {
                 // Supprime le dernier caractère de la chaîne de caractères
                 if (this.game.words[this.word_index] === this.words_list_copy[this.word_index]) {
@@ -42,7 +47,6 @@ export default {
                             this.word_index--
                             this.currentLetter = this.game.words[this.word_index].length
                             this.word_is_valid.pop()
-                            this.spacePressed.pop()
                         }
                     }
                 }
@@ -51,6 +55,9 @@ export default {
                     this.currentLetter--
                     this.game.letters[this.word_index].pop()
                 }
+            }
+            else if (e.key == "Dead") {
+                this.caretTyped = true
             }
             else {
                 window.addEventListener("keypress", this.letter_listener)
@@ -61,12 +68,25 @@ export default {
             const typedLetter = elem.key;
             const displayedLetter = this.game.words[this.word_index][this.currentLetter];
             // On vérifie si la bonne lettre à été tapé
-            if (this.currentLetter >= this.words_list_copy[this.word_index].length) {
+            if (typedLetter == "Delete") {
+                this.currentLetter = 0
+                this.game.words[this.word_index] = this.words_list_copy[this.word_index]
+                this.game.letters[this.word_index].splice(3);
+                this.game.letters[this.word_index].fill('#646669')
+            }
+            else if (this.currentLetter >= this.words_list_copy[this.word_index].length) {
                 if (typedLetter === " ") {
-                    this.spacePressed.push(true);
-                    this.word_is_valid.push(this.check_letter_value(this.game.letters[this.word_index], this.word_index))
-                    this.word_index++;
-                    this.currentLetter = 0;
+                    const w_status = this.check_letter_value(this.game.letters[this.word_index], this.word_index)
+                    if (w_status == true) {
+                        this.word_is_valid.push(w_status)
+                        this.word_index++;
+                        this.currentLetter = 0;
+                        this.game.socket.emit('client-wordstate', this.word_is_valid, this.game.game_time)
+                    } else {
+                        this.makeBounce = true
+                        this.underlineRed = true
+                    }
+
                 }
                 else {
                     this.game.letters[this.word_index].push("red")
@@ -74,21 +94,28 @@ export default {
                     this.currentLetter++
                 }
 
-            } else {
+            }
+            else {
                 if (typedLetter === displayedLetter) {
                     this.game.letters[this.word_index][this.currentLetter] = "white";
                     this.currentLetter++;
                 }
                 else {
-                    this.game.letters[this.word_index][this.currentLetter] = "red";
-                    this.currentLetter++;
+                    if (typedLetter == " ") {
+                        this.makeBounce = true
+                    }
+                    else {
+                        this.game.letters[this.word_index][this.currentLetter] = "red";
+                        this.currentLetter++;
+                    }
                 }
             }
             window.removeEventListener("keypress", this.letter_listener)
-            if (this.word_index + 1 == this.game.words.length && this.currentLetter == this.game.words[this.word_index].length) {
-                this.game.socket.emit("client-finish", this.game.room, callback => {
-                    console.log(callback)
-                })
+            if (this.word_index + 1 == this.game.words.length && this.currentLetter == this.words_list_copy[this.word_index].length) {
+                this.word_is_valid.push(true)
+                this.game.socket.emit('client-wordstate', this.word_is_valid, this.game.game_time)
+                this.game.socket.emit("client-finish", this.word_is_valid, this.game.game_time)
+                this.game.isRunning = false
             }
         },
         check_letter_value(arr, idx) {
@@ -104,11 +131,11 @@ export default {
             }
 
         },
-        clock(){
+        clock() {
             this.game.game_time = 0
             this.interval = setInterval(() => {
                 this.game.game_time++;
-                if (this.game.isFinished == true) {
+                if (this.game.isRunning == false) {
                     clearInterval(this.interval);
                 }
             }, 1000);
@@ -118,10 +145,8 @@ export default {
     created() {
         this.words_list_copy = this.game.words.slice()
 
-        this.game.socket.on('game-finished', (val) => {
+        this.game.socket.on('game-finished', () => {
             window.removeEventListener("keydown", this.typing_test)
-            this.game.isRunning = false
-            this.game.isFinished = true
             this.game.words_state = this.word_is_valid
         })
     },
@@ -129,6 +154,9 @@ export default {
         window.addEventListener('keydown', this.typing_test)
         this.clock()
     },
+    unmounted(){
+        window.removeEventListener("keydown", this.typing_test)
+    }
 };
 </script>
 <style scoped>
@@ -138,15 +166,8 @@ p {
 
 }
 
-.active::before {
-    content: "";
-    animation: blink 2s 0.2s infinite;
-    /* border-left: 1px solid white; */
-    position: absolute;
-}
-
-.active>.cursor::before,
-.active>.aimer::after {
+.cursor::before,
+.cursor_next::after {
     content: "|";
     animation: blink 1s 0.6s infinite;
     color: white;

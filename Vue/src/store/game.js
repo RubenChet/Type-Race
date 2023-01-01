@@ -9,7 +9,6 @@ export const useGameStore = defineStore("game", {
     letters: [],
     playerslist: [],
     isRunning: false,
-    isFinished: false,
     mode: "",
     type: "time",
     game_time: 3,

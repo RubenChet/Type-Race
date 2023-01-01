@@ -14,8 +14,9 @@
                     <div class="flex-col">
                         <div v-for="(player, index) in game.playerslist" :key="index" class="flex">
                             <p>{{ player.nickname }}</p>
-                            <p v-if="player.isReady == false" class="text-red-500">Not Ready</p>
-                            <p v-if="player.isReady == true" class="text-green-500">is Ready</p>
+                            <p v-if="player.isTyping == true" class="text-blue-500">Is Typing</p>
+                            <p v-else-if="player.isReady == false" class="text-red-500">Not Ready</p>
+                            <p v-if="player.isReady == true" class="text-green-500">Is Ready</p>
                             <p  v-if="game.socket.id != player.id" @click="kickPlayer(player.id)">Kick</p>
                         </div>
                     </div>
@@ -52,7 +53,7 @@ export default {
     },
     methods: {
         isReady() {
-            this.game.socket.emit("client-ready", this.game.room)
+            this.game.socket.emit("client-ready")
         },
         clock() {
             this.interval = setInterval(() => {
@@ -70,7 +71,6 @@ export default {
     },
     created() {
         this.game.socket.on('game-ready', (val) => {
-            this.game.isFinished = false
             this.game.words = val.wordlist
             this.game.letters = val.letters
             this.seconds = 3
@@ -82,9 +82,6 @@ export default {
         this.game.socket.on('got-kick', () => {
             alert("This is an alert dialog box");
         })
-    },
-    mounted() {
-        this.game.isFinished = false
     },
 }
 </script>

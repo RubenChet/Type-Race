@@ -26,15 +26,14 @@ io.on("connection", (socket) => {
         ready: 0,
         wordlist: scriptFile.makeWordsList(),
         letters: "",
+        has_finished: 0,
+        arePlaying: 0,
         players: {},
       };
       rooms_list[room].letters = scriptFile.makeColors(
         rooms_list[room].wordlist
       );
     }
-    // if (rooms_list[room].players.includes(nickname)){
-    //   nickname = 'already_taken'
-    // }
     socket.nickname = nickname;
 
     rooms_list[room].players[socket.id] = {
@@ -47,20 +46,26 @@ io.on("connection", (socket) => {
     console.log(socket.nickname + " joined room " + room);
   });
 
-  socket.on("client-ready", (room) => {
-    rooms_list[room].players[socket.id].isReady = true
-    io.to(room).emit("playerslist-update", rooms_list[room].players);
-    rooms_list[room].ready++;
+  socket.on("client-ready", () => {
+    rooms_list[socket.room].players[socket.id].isReady = true
+    io.to(socket.room).emit("playerslist-update", rooms_list[socket.room].players);
+    rooms_list[socket.room].ready++;
+    rooms_list[socket.room].arePlaying++;
+    rooms_list[socket.room].players[socket.id].valid_list = undefined
+    rooms_list[socket.room].players[socket.id].chrono = 0
+    rooms_list[socket.room].players[socket.id].wpm = 0
     if (
-      rooms_list[room].ready > 1 &&
-      rooms_list[room].ready == io.sockets.adapter.rooms.get(room).size
+      rooms_list[socket.room].ready > 1 &&
+      rooms_list[socket.room].ready == io.sockets.adapter.rooms.get(socket.room).size
     ) {
-      io.to(room).emit("game-ready", rooms_list[room]);
-      Object.values(rooms_list[room].players).map(player => {
+      io.to(socket.room).emit("game-ready", rooms_list[socket.room]);
+      Object.values(rooms_list[socket.room].players).map(player => {
         player.isReady = false;
       });
+      rooms_list[socket.room].players[socket.id].isTyping = true
       io.to(socket.room).emit("playerslist-update", rooms_list[socket.room].players);
-      rooms_list[room].ready = 0;
+      
+      rooms_list[socket.room].ready = 0;
     }
   });
   socket.on("ask-kick", (id) => {
@@ -71,9 +76,23 @@ io.on("connection", (socket) => {
     io.to(socket.room).emit("playerslist-update", rooms_list[socket.room].players);
   });
 
-  socket.on("client-finish", (room, cb) => {
-    cb("vous avez fini");
-    io.to(room).emit("game-finished", "some1 a fini");
+  socket.on("client-wordstate", (val, time) => {
+    rooms_list[socket.room].players[socket.id].valid_list = val
+    rooms_list[socket.room].players[socket.id].chrono = time
+    rooms_list[socket.room].players[socket.id].wpm = (val.length / (time / 60)).toFixed(0)
+    if (val.length < rooms_list[socket.room].wordlist.length) {
+      io.to(socket.room).emit("playerslist-update", rooms_list[socket.room].players);
+    }
+  })
+
+  socket.on("client-finish", () => {
+    rooms_list[socket.room].players[socket.id].isTyping = false
+    rooms_list[socket.room].has_finished ++
+    io.to(socket.room).emit("playerslist-update", rooms_list[socket.room].players);
+    if (rooms_list[socket.room].has_finished == rooms_list[socket.room].arePlaying){
+      rooms_list[socket.room].ready = 0
+    }
+    
   });
 
   socket.on("disconnect", () => {
@@ -82,7 +101,6 @@ io.on("connection", (socket) => {
       io.to(socket.room).emit("playerslist-update", rooms_list[socket.room].players);
     }
     catch{
-      console.log('e')
       return
     }
     
