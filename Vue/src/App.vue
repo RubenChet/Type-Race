@@ -9,7 +9,6 @@ const game = useGameStore()
 
 <template>
   <HeaderVue />
-  <NavbarVue />
   <div v-if="game.mode == ''">
     <div class="mt-40 flex place-content-around w-1/5 mx-auto">
       <button @click="game.mode = 'solo'">Solo</button>

@@ -1,11 +1,33 @@
 <template>
     <div class="flex justify-center mt-20">
-        <div v-if="!roomState" class="flex flex-col text-center">
-            <input type="text" v-model="nickname" placeholder="Choose a nickname" />
-            <div>
-                <input type="text" v-model="game.room" placeholder="Enter the RoomTag" />
-                <button @click="joinRoom(game.room)">Join</button>
+        <div v-if="!roomState" class="flex text-center">
+            <div id="Public">
+                <h1>Join a Public Room</h1>
+                <!-- <span class="p-float-label">
+                    <InputText id="nickname" type="text" class="p-inputtext-sm" v-model="nickname" />
+                    <label for="nickname">Choose a nickname :</label>
+                </span>
+                <span class="p-float-label">
+                    <InputText id="room" type="text" class="p-inputtext-sm" v-model="game.room" />
+                    <label for="room">Room number :</label>
+
+                </span>
+                <Button label="Join" @click="joinRoom()" class="p-button-info p-button-sm p-button-rounded" /> -->
             </div>
+            <div id="Private">
+                <h1>Join a Private Room</h1>
+                <span class="p-float-label">
+                    <InputText id="nickname" type="text" class="p-inputtext-sm" v-model="nickname" />
+                    <label for="nickname">Choose a nickname :</label>
+                </span>
+                <span class="p-float-label">
+                    <InputText id="room" type="text" class="p-inputtext-sm" v-model="game.room" />
+                    <label for="room">Room number :</label>
+
+                </span>
+                <Button label="Join" @click="joinRoom()" class="p-button-info p-button-sm p-button-rounded" />
+            </div>
+
         </div>
 
         <div v-else>
@@ -18,6 +40,8 @@
 import WaitRoomVue from "./WaitRoom.vue";
 import io from 'socket.io-client';
 import { useGameStore } from '../store/game'
+import InputText from 'primevue/inputtext';
+import Button from 'primevue/button';
 export default {
     setup() {
         const game = useGameStore()
@@ -32,6 +56,9 @@ export default {
     },
     components: {
         WaitRoomVue,
+        InputText,
+        Button,
+
     },
     mounted() {
 
@@ -41,16 +68,21 @@ export default {
     },
     methods: {
         joinRoom() {
-            this.game.socket = io('http://localhost:3000');
-            this.game.socket.on('connect', () => { });
-            this.game.socket.emit("join-room", this.game.room, this.nickname, callback => {
-                this.game.playerslist = callback
-            })
-            this.roomState = !this.roomState
+            if (this.nickname == "" || this.game.room == "") {
+                console.log('Please enter a nickname and a room')
+            }
+            else {
+                this.game.socket = io('http://localhost:3000');
+                this.game.socket.on('connect', () => { });
+                this.game.socket.emit("join-room", this.game.room, this.nickname, callback => {
+                    this.game.playerslist = callback
+                })
+                this.roomState = !this.roomState
+            }
         },
     },
     beforeDestroy() {
-        this.game.socket.disconnect()
+        t.disconnect()
     },
 }
 </script>
