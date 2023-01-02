@@ -1,10 +1,21 @@
 <template>
-    <div v-if="clicked && seconds > 0">{{ seconds }}</div>
+    <div>Room : {{ game.room }}</div>
+    <div v-if="rdy && seconds > 0">{{ seconds }}</div>
     <div v-else-if="game.isRunning == true">
         <MultiVue />
     </div>
     <div id="WaitRoom" v-else class="flex justify-center space-x-48">
-        <div id="InputContainer">Chat</div>
+        <div id="InputContainer">Chat
+            <div id="ChatContainer" >
+                <div v-for="(msg, index) in game.messages" :key="index" class="flex">
+                    <p>{{ msg.sender }} : {{ msg.message }}</p>
+                </div>
+            </div>
+            <div id="Container">
+                <input type="text" v-model="msg" @keyup.enter="send_msg(msg)" placeholder="Write a message" />
+                <button @click="send_msg(msg)">Send</button>
+            </div>
+        </div>
         <div>
             <div id="InputContainer" class="flex justify-center">
                 <ResultVue />
@@ -17,13 +28,12 @@
                             <p v-if="player.isTyping == true" class="text-blue-500">Is Typing</p>
                             <p v-else-if="player.isReady == false" class="text-red-500">Not Ready</p>
                             <p v-if="player.isReady == true" class="text-green-500">Is Ready</p>
-                            <p  v-if="game.socket.id != player.id" @click="kickPlayer(player.id)">Kick</p>
+                            <p v-if="game.socket.id != player.id" @click="kickPlayer(player.id)">Kick</p>
                         </div>
                     </div>
                 </div>
-
-                <button @click="isReady(), clicked = !clicked"
-                    v-bind:class="{ 'text-red-500': !clicked, 'text-green-500': clicked }">Ready</button>
+                <button @click="isReady()" v-if="rdy == true">UnReady</button>
+                <button @click="isReady()" v-else>Ready</button>
             </div>
 
         </div>
@@ -42,9 +52,10 @@ export default {
     },
     data() {
         return {
-            clicked: false,
             interval: null,
             seconds: null,
+            rdy: false,
+            msg: ''
         }
     },
     components: {
@@ -54,6 +65,7 @@ export default {
     methods: {
         isReady() {
             this.game.socket.emit("client-ready")
+            this.rdy = !this.rdy
         },
         clock() {
             this.interval = setInterval(() => {
@@ -61,13 +73,19 @@ export default {
                 if (this.seconds === 0) {
                     clearInterval(this.interval);
                     this.game.isRunning = true
-                    this.clicked = false
+                    this.rdy = false
                 }
             }, 1000);
         },
         kickPlayer(val) {
             this.game.socket.emit("ask-kick", val)
-        }
+        },
+        send_msg(val) {
+            this.game.socket.emit("send-message", val)
+            this.msg = ''
+        },
+        
+
     },
     created() {
         this.game.socket.on('game-ready', (val) => {
@@ -82,6 +100,10 @@ export default {
         this.game.socket.on('got-kick', () => {
             alert("This is an alert dialog box");
         })
+        this.game.socket.on('message-update', (val) => {
+            this.game.messages = val
+        })
+
     },
 }
 </script>
