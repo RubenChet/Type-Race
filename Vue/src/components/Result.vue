@@ -2,9 +2,10 @@
     <div class="flex-col m-8 w-full">
         <h1 class="text-center">Logo</h1>
         <div class="flex mt-4">
-            <div class="flex-col">
+            <div class="flex-col overflow-auto border">
                 <div v-for="(player, index) in sortedPlayers" :key="index">
-                    <div class="flex space-x-8" v-bind:class="{ 'text-amber-300': player.rank === 1, 'text-neutral-100': player.rank === 2, 'text-amber-300': index + 1 === 3 }">
+                    <div class="flex space-x-8"
+                        v-bind:class="{ 'text-amber-300': player.rank === 1, 'text-neutral-100': player.rank === 2, 'text-amber-300': index + 1 === 3 }">
                         <p>{{ index + 1 }}-</p>
                         <p>{{ player.nickname }}</p>
                         <p>WPM : {{ player.wpm }}</p>
@@ -13,13 +14,20 @@
                 </div>
             </div>
             <Divider layout="vertical" />
-            <div>
+            <div class="mx-auto flex-col">
                 <h1>graph</h1>
                 <div class="flex justify-center">
                     <p>replay</p>
                     <p>Screenshot</p>
                 </div>
-                <h1>Input history</h1>
+            </div>
+        </div>
+        <div class="mt-4">
+            Input History :
+            <div class="flex justify-center space-x-2 overflow-auto">
+                <p v-for="(words, index) in game.words" :key="index">
+                    {{ words }}
+                </p>
             </div>
         </div>
     </div>

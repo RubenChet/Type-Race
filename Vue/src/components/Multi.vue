@@ -1,7 +1,7 @@
 <template>
-    <div class="flex-col">
+    <div class="flex-col w-3/5 mx-auto">
         <div id="InputContainer" class="flex justify-center w-fit mx-auto">
-            <div class="m-1">
+            <div class="m-2 mx-4">
                 <div v-for="(player, index) in sortedPlayers" :key="index" class="flex justify-center">
                     <p>{{ player.nickname }}</p>
                     <p>{{ percentage(player.valid_list) }}</p>
@@ -10,7 +10,7 @@
             </div>
 
         </div>
-        <div id="InputContainer" class="mt-10 flex justify-center h-64 overflow-hidden w-1/2 mx-auto">
+        <div id="InputContainer" class="mt-10 flex justify-center overflow-hidden mx-auto">
             <MultiTyperVue />
         </div>
     </div>

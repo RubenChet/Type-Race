@@ -1,5 +1,5 @@
 <template>
-    <div class="flex justify-center mt-20">
+    <div class="flex justify-center mt-8 ">
         <div v-if="!roomState" class="flex text-center">
             <div id="Public">
                 <h1>Join a Public Room</h1>
@@ -29,10 +29,7 @@
             </div>
 
         </div>
-
-        <div v-else>
-            <WaitRoomVue />
-        </div>
+        <WaitRoomVue v-else />
     </div>
 
 </template>

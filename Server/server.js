@@ -8,6 +8,7 @@ const io = require("socket.io")(3000, {
 
 const rooms_list = {}; // Dictionnarie permettant de compter le nombre de clients ready dans une room spécifique
 const clients = {};
+let rank = 1;
 
 io.on("connection", (socket) => {
   clients[socket.id] = socket;
@@ -89,6 +90,7 @@ io.on("connection", (socket) => {
           rooms_list[socket.room].players
         );
         rooms_list[socket.room].ready = 0;
+        rank = 1;
       }
     }
   });
@@ -121,6 +123,8 @@ io.on("connection", (socket) => {
   socket.on("client-finish", () => {
     rooms_list[socket.room].players[socket.id].isTyping = false;
     rooms_list[socket.room].has_finished++;
+    rooms_list[socket.room].players[socket.id].rank = rank;
+    rank++;
     io.to(socket.room).emit(
       "playerslist-update",
       rooms_list[socket.room].players

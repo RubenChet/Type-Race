@@ -1,20 +1,20 @@
 <template>
-    <div>Room : {{ game.room }}</div>
     <div v-if="rdy && seconds > 0">{{ seconds }}</div>
-    <div v-else-if="game.isRunning == true">
-        <MultiVue />
-    </div>
+    <MultiVue v-else-if="game.isRunning == true" />
     <div id="WaitRoom" v-else class="flex justify-center space-x-48 ">
         <div id="InputContainer">
             <div id="chat" class="m-4">
-                <div id="chatContainer" class="overflow-auto">
+                <div class="flex justify-center">
+                    <p class="mx-auto">Welcome to room : {{ game.room }}</p>
+                </div>
+                <div id="chatContainer" class="overflow-auto mx-auto mt-2">
                     <div v-for="(msg, index) in game.messages" :key="index" class="flex">
                         <p>{{ msg.sender }} : {{ msg.message }}</p>
                     </div>
                 </div>
                 <Divider />
                 <div id="send" class="flex justify-center mt-4 space-x-4">
-                    <InputText id="input_chat" type="text" v-model="msg" placeholder="Chat" class="p-inputtext-sm" />
+                    <InputText id="input_chat" type="text" v-model="msg" placeholder="Chat" class="p-inputtext-sm" @keyup.enter="send_msg(msg)" />
                     <Button id="btn_chat" label="Send" class=" p-button-rounded p-button-info" @click="send_msg(msg)" />
                 </div>
             </div>
@@ -28,27 +28,34 @@
                 <div id="InputContainer" class="flex-col text-center PlayerPanel">
                     <div id="Content" class="m-3">
                         <h1>Players List :</h1>
-                        <div v-for="(player, index) in game.playerslist" :key="index" class="mt-2">
-                            <Divider id="you" />
-                            <div class="flex space-x-3">
-                                <p>{{ player.nickname }} :</p>
-                                <p v-if="player.isTyping == true" class="text-blue-500">Is Typing</p>
-                                <p v-else-if="player.isReady == false" class="text-red-500">Not Ready</p>
-                                <p v-if="player.isReady == true" class="text-green-500">Is Ready</p>
-                                <p v-if="game.socket.id != player.id" @click="kickPlayer(player.id)">Kick</p>
+                        <div id='players_container' class="overflow-auto">
+                            <div v-for="(player, index) in game.playerslist" :key="index" class="mt-2">
+                                <div id="players" class="flex mx-2">
+                                    <p>{{ player.nickname }} :</p>
+                                    <p v-if="player.isTyping == true" class="text-blue-500">Is Typing</p>
+                                    <p v-else-if="player.isReady == false" class="text-red-500">Not Ready</p>
+                                    <p v-if="player.isReady == true" class="text-green-500">Is Ready</p>
+                                    <p v-if="game.socket.id != player.id" @click="kickPlayer(player.id)">Kick</p>
+                                    <p v-else class="text-green-500">You</p>
+                                </div>
+                                <Divider id="you" />
                             </div>
-                            
                         </div>
-                        
+                        <div class="mt-2 mx-10 flex justify-end">
+                            <h1>Invite Friends</h1>
+                        </div>
+
+
                     </div>
                 </div>
                 <div id="InputContainer" class="flex-col text-center PlayerPanel">
                     <div id="Content" class="m-3">
                         <h1>Game Settings :</h1>
-                        <div class="flex justify-center mt-4">
+                        <div class="flex space-x-6 items-center mt-4">
+                            <p>Language :</p>
                             <Dropdown v-model="selectedLang" :options="languages" placeholder="French" />
                         </div>
-                        <div class="flex space-x-6 items-center mt-3">
+                        <div class="flex space-x-6 items-center mt-6">
                             <p>Words :</p>
                             <div class="flex flex-col">
                                 <label for="rb1">10</label>
@@ -62,16 +69,24 @@
                                 <label for="rb1">50</label>
                                 <RadioButton value=50 v-model="words_length" />
                             </div>
+                            <div class="flex flex-col">
+                                <label for="rb1">100</label>
+                                <RadioButton value=100 v-model="words_length" />
+                            </div>
                         </div>
-
+                        <div id="players" class="flex mx-4 mt-7">
+                            <p>Punctuation</p>
+                            <p>Numbers</p>
+                        </div>
+                        <div class="flex justify-center mt-7">
+                            <Button v-if="rdy == true" id="btn_chat" label="UnReady"
+                                class="p-button-rounded p-button-info" @click="isReady()" />
+                            <Button v-else id="btn_chat" label="Ready" class="p-button-rounded p-button-help"
+                                @click="isReady()" />
+                        </div>
                     </div>
                 </div>
-                <div class="flex items-center">
-                    <Button v-if="rdy == true" id="btn_chat" label="UnReady" class="p-button-rounded p-button-info"
-                        @click="isReady()" />
-                    <Button v-else id="btn_chat" label="Ready" class="p-button-rounded p-button-help"
-                        @click="isReady()" />
-                </div>
+
 
             </div>
 
@@ -158,14 +173,12 @@ export default {
 </script>
 <style>
 #chat {
-    width: 25vh;
-    height: 55vh;
+    width: 27vh;
+    height: 57vh;
 }
 
 #chatContainer {
-    width: 25vh;
-    height: 92%;
-    border-radius: 5px;
+    height: 100%;
 }
 
 #input_chat,
@@ -175,15 +188,24 @@ export default {
 }
 
 .ResultPannel {
-    width: 65vh;
-    height: 30vh;
+    width: 70vh;
+    height: 35vh;
 }
 
 .PlayerPanel {
-    width: 25vh;
-    height: 30vh;
+    width: 28vh;
+    height: 34vh;
 }
-#you{
+
+#you {
     margin: 0;
+}
+
+#players {
+    justify-content: space-between;
+}
+
+#players_container {
+    height: 26vh;
 }
 </style>
