@@ -24,5 +24,6 @@ const game = useGameStore()
 html {
   background-color: #323437;
   color: #646669;
+  scroll-behavior: smooth;
 }
 </style>

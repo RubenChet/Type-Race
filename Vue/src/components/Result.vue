@@ -24,7 +24,7 @@
         </div>
         <div class="mt-4">
             Input History :
-            <div class="flex justify-center space-x-2 overflow-auto">
+            <div class="flex flex-wrap justify-center space-x-2 mx-auto">
                 <p v-for="(words, index) in game.words" :key="index">
                     {{ words }}
                 </p>

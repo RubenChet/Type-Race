@@ -1,5 +1,5 @@
 <template>
-    <div class="flex justify-center flex-wrap m-7 overflow-hidden w-full">
+    <div class="flex justify-center flex-wrap m-7 overflow-hidden w-full" ref="flexWrapContainer">
         <div v-for="(word, index) in game.words" :key="index" class="flex mr-2"
             v-bind:class="{ 'animate__animated animate__headShake': index === word_index && makeBounce == true, 'underline decoration-red-500': index === word_index && underlineRed == true }"
             @animationend="makeBounce = false, underlineRed = false">
@@ -12,7 +12,7 @@
     </div>
 </template>
 <script>
-import { useGameStore } from '../store/game'
+import { useGameStore } from '../../store/game'
 import 'animate.css'
 export default {
     setup() {
@@ -139,6 +139,32 @@ export default {
                     clearInterval(this.interval);
                 }
             }, 1000);
+        },
+        Check_elements() {
+            const parent = this.$refs.flexWrapContainer;
+            const children = parent.children;
+
+            let elementCount = 0;
+            let currentRowWidth = 0;
+            const elementCountsPerRow = [];
+
+            for (let i = 0; i < children.length; i++) {
+                const marginRight = parseInt(window.getComputedStyle(children[i]).marginRight, 10);
+                const marginLeft = parseInt(window.getComputedStyle(children[i]).marginLeft, 10);
+                currentRowWidth += children[i].offsetWidth + marginRight + marginLeft;
+                elementCount++;
+                if (currentRowWidth > parent.offsetWidth) {
+                    elementCountsPerRow.push(elementCount - 1);
+                    currentRowWidth = 0;
+                    elementCount = 0;
+                }
+                else if (currentRowWidth == parent.offsetWidth) {
+                    elementCountsPerRow.push(elementCount);
+                    currentRowWidth = 0;
+                    elementCount = 0;
+                }
+            }
+            console.log(`Number of elements per row: ${elementCountsPerRow}`);
         }
 
     },
@@ -153,8 +179,9 @@ export default {
     mounted() {
         window.addEventListener('keydown', this.typing_test)
         this.clock()
+        this.Check_elements()
     },
-    unmounted(){
+    unmounted() {
         window.removeEventListener("keydown", this.typing_test)
     }
 };

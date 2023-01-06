@@ -14,7 +14,8 @@
                 </div>
                 <Divider />
                 <div id="send" class="flex justify-center mt-4 space-x-4">
-                    <InputText id="input_chat" type="text" v-model="msg" placeholder="Chat" class="p-inputtext-sm" @keyup.enter="send_msg(msg)" />
+                    <InputText id="input_chat" type="text" v-model="msg" placeholder="Chat" class="p-inputtext-sm"
+                        @keyup.enter="send_msg(msg)" />
                     <Button id="btn_chat" label="Send" class=" p-button-rounded p-button-info" @click="send_msg(msg)" />
                 </div>
             </div>
@@ -57,28 +58,17 @@
                         </div>
                         <div class="flex space-x-6 items-center mt-6">
                             <p>Words :</p>
-                            <div class="flex flex-col">
-                                <label for="rb1">10</label>
-                                <RadioButton value=10 v-model="words_length" />
-                            </div>
-                            <div class="flex flex-col">
-                                <label for="rb1">25</label>
-                                <RadioButton value=25 v-model="words_length" />
-                            </div>
-                            <div class="flex flex-col">
-                                <label for="rb1">50</label>
-                                <RadioButton value=50 v-model="words_length" />
-                            </div>
-                            <div class="flex flex-col">
-                                <label for="rb1">100</label>
-                                <RadioButton value=100 v-model="words_length" />
+                            <div v-for="(val, index) in words_length" :key="index" class="field-radiobutton flex flex-col">
+                                <label :for="val.key">{{ val.name }}</label>
+                                <RadioButton :inputId="val.key" name="val" :value="val.name"
+                                    v-model="selectedval" />
                             </div>
                         </div>
                         <div id="players" class="flex mx-4 mt-7">
                             <p>Punctuation</p>
                             <p>Numbers</p>
                         </div>
-                        <div class="flex justify-center mt-7">
+                        <div class="flex justify-center mt-4">
                             <Button v-if="rdy == true" id="btn_chat" label="UnReady"
                                 class="p-button-rounded p-button-info" @click="isReady()" />
                             <Button v-else id="btn_chat" label="Ready" class="p-button-rounded p-button-help"
@@ -96,7 +86,7 @@
 
 </template>
 <script>
-import MultiVue from "./Multi.vue";
+import MultiVue from "./Multiplayer/Multi.vue";
 import ResultVue from './Result.vue'
 import { useGameStore } from '../store/game'
 import InputText from 'primevue/inputtext';
@@ -115,7 +105,13 @@ export default {
             seconds: null,
             rdy: false,
             msg: '',
-            words_length: null,
+            selectedLength: 0,
+            words_length: [
+                {name: '10', key: 10}, 
+                {name: '25', key: 25}, 
+                {name: '50', key: 50}, 
+                {name: '100', key: 100}, 
+            ],
         }
     },
     components: {
@@ -167,14 +163,14 @@ export default {
         this.game.socket.on('message-update', (val) => {
             this.game.messages = val
         })
-
+        this.selectedLength = this.words_length[1].name
     },
 }
 </script>
 <style>
 #chat {
     width: 27vh;
-    height: 57vh;
+    height: 56vh;
 }
 
 #chatContainer {
@@ -188,12 +184,12 @@ export default {
 }
 
 .ResultPannel {
-    width: 70vh;
+    width: 74vh;
     height: 35vh;
 }
 
 .PlayerPanel {
-    width: 28vh;
+    width: 32vh;
     height: 34vh;
 }
 
@@ -206,6 +202,6 @@ export default {
 }
 
 #players_container {
-    height: 26vh;
+    height: 25vh;
 }
 </style>
