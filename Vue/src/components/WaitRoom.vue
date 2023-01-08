@@ -39,7 +39,6 @@
                                     <p v-if="game.socket.id != player.id" @click="kickPlayer(player.id)">Kick</p>
                                     <p v-else class="text-green-500">You</p>
                                 </div>
-                                <Divider id="you" />
                             </div>
                         </div>
                         <div class="mt-2 mx-10 flex justify-end">
@@ -58,10 +57,10 @@
                         </div>
                         <div class="flex space-x-6 items-center mt-6">
                             <p>Words :</p>
-                            <div v-for="(val, index) in words_length" :key="index" class="field-radiobutton flex flex-col">
+                            <div v-for="(val, index) in words_length" :key="index"
+                                class="field-radiobutton flex flex-col">
                                 <label :for="val.key">{{ val.name }}</label>
-                                <RadioButton :inputId="val.key" name="val" :value="val.name"
-                                    v-model="selectedval" />
+                                <RadioButton :inputId="val.key" name="val" :value="val.name" v-model="selectedval" />
                             </div>
                         </div>
                         <div id="players" class="flex mx-4 mt-7">
@@ -107,10 +106,10 @@ export default {
             msg: '',
             selectedLength: 0,
             words_length: [
-                {name: '10', key: 10}, 
-                {name: '25', key: 25}, 
-                {name: '50', key: 50}, 
-                {name: '100', key: 100}, 
+                { name: '10', key: 10 },
+                { name: '25', key: 25 },
+                { name: '50', key: 50 },
+                { name: '100', key: 100 },
             ],
         }
     },

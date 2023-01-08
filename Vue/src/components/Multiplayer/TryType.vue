@@ -29,11 +29,18 @@ export default {
             caretTyped: false,
             interval: null,
             makeBounce: false,
-            underlineRed: false
+            underlineRed: false,
+            elementCountsPerRow: [],
+            elemCount: 0,
+            rowI: 0,
         };
     },
     methods: {
         typing_test(e) {
+            if (this.elemCount == this.elementCountsPerRow[this.rowI]) {
+                console.log('descendre')
+                this.elemCount = 0
+            }
             this.caretTyped = false
             if (e.key === "Backspace") {
                 // Supprime le dernier caractère de la chaîne de caractères
@@ -80,6 +87,7 @@ export default {
                     if (w_status == true) {
                         this.word_is_valid.push(w_status)
                         this.word_index++;
+                        this.elemCount++
                         this.currentLetter = 0;
                         this.game.socket.emit('client-wordstate', this.word_is_valid, this.game.game_time)
                     } else {
@@ -146,7 +154,6 @@ export default {
 
             let elementCount = 0;
             let currentRowWidth = 0;
-            const elementCountsPerRow = [];
 
             for (let i = 0; i < children.length; i++) {
                 const marginRight = parseInt(window.getComputedStyle(children[i]).marginRight, 10);
@@ -154,17 +161,17 @@ export default {
                 currentRowWidth += children[i].offsetWidth + marginRight + marginLeft;
                 elementCount++;
                 if (currentRowWidth > parent.offsetWidth) {
-                    elementCountsPerRow.push(elementCount - 1);
+                    this.elementCountsPerRow.push(elementCount - 1);
                     currentRowWidth = 0;
                     elementCount = 0;
                 }
                 else if (currentRowWidth == parent.offsetWidth) {
-                    elementCountsPerRow.push(elementCount);
+                    this.elementCountsPerRow.push(elementCount);
                     currentRowWidth = 0;
                     elementCount = 0;
                 }
             }
-            console.log(`Number of elements per row: ${elementCountsPerRow}`);
+            console.log(`Number of elements per row: ${this.elementCountsPerRow}`);
         }
 
     },
