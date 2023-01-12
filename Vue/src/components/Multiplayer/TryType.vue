@@ -11,7 +11,7 @@
         'animate__animated animate__headShake':
           index === word_index && makeBounce == true,
         'underline decoration-red-500': index === word_index && underlineRed == true,
-        hidden: loaded == true && index < minIdx,
+        hidden: index < minIdx,
       }"
       @animationend="(makeBounce = false), (underlineRed = false)"
     >
@@ -53,7 +53,6 @@ export default {
       minIdx: 0,
       maxIdx: 0,
       elemIndex: 0,
-      loaded: false,
     };
   },
   methods: {
@@ -177,8 +176,6 @@ export default {
       }, 1000);
     },
     Check_elements() {
-      this.loaded == false;
-      this.loaded = true;
       const parent = this.$refs.flexWrapContainer; // recupère les caractèristiques de l'élement contenant la liste de mots
       const children = parent.children;
 
@@ -216,12 +213,6 @@ export default {
         }
       }
       this.maxIdx = this.elemIndex - 1;
-      this.loaded = true;
-      console.log(this.elementCountsFRow);
-      console.log(this.maxIdx);
-    },
-    sleep(ms) {
-      return new Promise((resolve) => setTimeout(resolve, ms));
     },
   },
   created() {
