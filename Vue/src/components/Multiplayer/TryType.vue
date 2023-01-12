@@ -1,7 +1,7 @@
 <template>
     <div class="flex justify-center flex-wrap m-7 overflow-hidden w-full" ref="flexWrapContainer">
         <div v-for="(word, index) in game.words" :key="index" class="flex mr-2"
-            v-bind:class="{ 'animate__animated animate__headShake': index === word_index && makeBounce == true, 'underline decoration-red-500': index === word_index && underlineRed == true }"
+            v-bind:class="{ 'animate__animated animate__headShake': index === word_index && makeBounce == true, 'underline decoration-red-500': index === word_index && underlineRed == true, 'underline decoration-green-500': index <= maxIdx && index >= minIdx }"
             @animationend="makeBounce = false, underlineRed = false">
             <p v-for="(letter, idx) in word" :key="idx"
                 v-bind:class="{ 'cursor': idx === currentLetter && index === word_index, 'underline': idx === currentLetter && index === word_index && caretTyped == true, 'cursor_next': idx === word.length - 1 && idx === currentLetter - 1 && index === word_index }"
@@ -33,6 +33,8 @@ export default {
             elementCountsPerRow: [],
             elemCount: 0,
             rowI: 0,
+            minIdx: 0,
+            maxIdx: 0,
         };
     },
     methods: {
@@ -155,24 +157,49 @@ export default {
             let elementCount = 0;
             let currentRowWidth = 0;
 
-            for (let i = 0; i < children.length; i++) {
-                const marginRight = parseInt(window.getComputedStyle(children[i]).marginRight, 10);
-                const marginLeft = parseInt(window.getComputedStyle(children[i]).marginLeft, 10);
-                currentRowWidth += children[i].offsetWidth + marginRight + marginLeft;
+            while (this.elementCountsPerRow.length < 1) {
+                console.log(elementCount)
+                const marginRight = parseInt(window.getComputedStyle(children[elementCount]).marginRight);
+                const marginLeft = parseInt(window.getComputedStyle(children[elementCount]).marginLeft);
+                currentRowWidth += children[elementCount].offsetWidth + marginRight + marginLeft;
                 elementCount++;
                 if (currentRowWidth > parent.offsetWidth) {
-                    this.elementCountsPerRow.push(elementCount - 1);
+                    this.elementCountsPerRow.push(elementCount - 2);
                     currentRowWidth = 0;
                     elementCount = 0;
                 }
                 else if (currentRowWidth == parent.offsetWidth) {
-                    this.elementCountsPerRow.push(elementCount);
+                    console.log("ici")
+                    this.elementCountsPerRow.push(elementCount - 1);
                     currentRowWidth = 0;
                     elementCount = 0;
                 }
             }
-            console.log(`Number of elements per row: ${this.elementCountsPerRow}`);
-        }
+            console.log(this.elementCountsPerRow[0])
+            // console.log(this.elementCountsPerRow[0])
+
+            // for (let i = 0; i < children.length; i++) {
+            //     const marginRight = parseInt(window.getComputedStyle(children[i]).marginRight, 10);
+            //     const marginLeft = parseInt(window.getComputedStyle(children[i]).marginLeft, 10);
+            //     currentRowWidth += children[i].offsetWidth + marginRight + marginLeft;
+            //     elementCount++;
+            //     if (currentRowWidth > parent.offsetWidth) {
+            //         this.elementCountsPerRow.push(elementCount - 1);
+            //         currentRowWidth = 0;
+            //         elementCount = 0;
+            //     }
+            //     else if (currentRowWidth == parent.offsetWidth) {
+            //         this.elementCountsPerRow.push(elementCount);
+            //         currentRowWidth = 0;
+            //         elementCount = 0;
+            //     }
+            //     if (this.elementCountsPerRow.length == 2) {
+            //         break
+            //     }
+            // }
+            this.minIdx = this.maxIdx
+            this.maxIdx = this.elementCountsPerRow[0]
+        },
 
     },
     created() {
@@ -184,6 +211,8 @@ export default {
         })
     },
     mounted() {
+        this.minIdx = 0
+        this.maxIdx = 0
         window.addEventListener('keydown', this.typing_test)
         this.clock()
         this.Check_elements()
