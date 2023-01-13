@@ -4,7 +4,7 @@ function makeWordsList() {
   const arr = []
   let min = 0
   let max = json_file.length
-  for (let i = 0; i < 150; i++) {
+  for (let i = 0; i < 15; i++) {
     let randomNumber = Math.floor(Math.random() * (max - min + 1)) + min
     arr.push(json_file[randomNumber]) // mot aléatoire
   }

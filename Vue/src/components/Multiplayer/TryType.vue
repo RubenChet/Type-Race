@@ -186,14 +186,19 @@ export default {
       this.elemIndex = this.elementCountsFRow;
       while (rows < 2) {
         //On calcule la largeur de la ligne
-        const marginRight = parseInt(
-          window.getComputedStyle(children[this.elemIndex]).marginRight
-        );
-        const marginLeft = parseInt(
-          window.getComputedStyle(children[this.elemIndex]).marginLeft
-        );
-        currentRowWidth +=
-          children[this.elemIndex].offsetWidth + marginRight + marginLeft;
+        if (children[this.elemIndex]) {
+          const marginRight = parseInt(
+            window.getComputedStyle(children[this.elemIndex]).marginRight
+          );
+          const marginLeft = parseInt(
+            window.getComputedStyle(children[this.elemIndex]).marginLeft
+          );
+          currentRowWidth +=
+            children[this.elemIndex].offsetWidth + marginRight + marginLeft;
+        } else {
+          break;
+        }
+
         if (currentRowWidth > parent.offsetWidth) {
           this.elemIndex - 1;
           if (rows == 0) {
