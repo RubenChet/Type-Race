@@ -23,7 +23,7 @@
 						<p>{{ room.id }}</p>
 						<Knob v-model="room.players" :min="0" :max="10" readonly id="circle" />
 						<div>
-							<Tag class="mr-2" severity="info" value="Join" rounded @click=";(game.room = room.id), joinRoom()"></Tag>
+							<Button label="Join" @click="(game.room = room.id), joinRoom()" class="p-button-info p-button-sm p-button-rounded h-6" />
 						</div>
 					</div>
 				</div>
