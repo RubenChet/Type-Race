@@ -4,8 +4,9 @@
     <div id="WaitRoom" v-else class="flex justify-center space-x-48 ">
         <div id="InputContainer">
             <div id="chat" class="m-4">
-                <div class="flex justify-center">
-                    <p class="mx-auto">Welcome to room : {{ game.room }}</p>
+                <div class="flex justify-center space-x-2 ">
+                    <p>Welcome to room :</p>
+                    <p class="text-green-500">{{ game.room }}</p>
                 </div>
                 <div id="chatContainer" class="overflow-auto mx-auto mt-2">
                     <div v-for="(msg, index) in game.messages" :key="index" class="flex">

@@ -1,5 +1,5 @@
 <template>
-    <div class="flex justify-center mt-10">
+    <div class="flex justify-center mt-10 items-center space-x-20">
         <div id="MainBar" class="flex p-2">
             <div id="Mode" class="flex">
                 <p>Solo</p>
