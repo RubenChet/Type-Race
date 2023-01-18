@@ -125,8 +125,13 @@
 				}
 			},
 			chgNameJoin() {
-				this.game.nickname = this.nickname
-				localStorage.nickname = this.game.nickname
+				if (this.nickname != "") {
+					this.game.nickname = this.nickname
+					localStorage.nickname = this.game.nickname
+				}
+				else{
+					this.game.nickname = localStorage.nickname
+				}
 				this.game.socket.emit("join-room", this.game.room, this.game.nickname)
 				this.game.roomState = !this.game.roomState
 			},
