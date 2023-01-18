@@ -2,6 +2,8 @@ import { defineStore } from "pinia";
 
 export const useGameStore = defineStore("game", {
   state: () => ({
+    nickname: '',
+    roomState: false,
     socket: null,
     room: "",
     words: [],

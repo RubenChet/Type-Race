@@ -1,6 +1,6 @@
 <template>
 	<div class="mt-10">
-		<div></div>
+		<H1 class="ml-5">{{word_index}}/{{words_list_copy.length}}</H1>
 		<div id="InputContainer" class="mt-2 flex justify-center overflow-hidden mx-auto">
 			<div class="flex justify-center flex-wrap m-7 overflow-hidden w-full h-14" ref="flexWrapContainer">
 				<div

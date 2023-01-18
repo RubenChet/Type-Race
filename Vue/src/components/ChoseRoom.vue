@@ -1,5 +1,5 @@
 <template>
-	<Dialog header="Change Nickname" v-model:visible="display">
+	<Dialog header="Change Nickname" v-model:visible="display" :closable="false">
 		<p class="italic">You need a nickname to join a room !</p>
 		<div class="flex items-center justify-center space-x-2 mt-2">
 			<div>
@@ -14,7 +14,7 @@
 		</div>
 	</Dialog>
 	<div class="flex justify-center mt-8">
-		<div v-if="!roomState" class="flex justify-center">
+		<div v-if="!game.roomState" class="flex justify-center">
 			<div id="InputContainer">
 				<div class="m-4">
 					<H1 class="flex items-start italic -mt-2">Public Room's list :</H1>
@@ -69,7 +69,6 @@
 		},
 		data() {
 			return {
-				roomState: false,
 				roomType: "",
 				nickname: "",
 				isPublic: true,
@@ -106,7 +105,9 @@
 			Knob,
 			Dialog,
 		},
-		mounted() {},
+		mounted() {
+			this.game.nickname = localStorage.nickname
+		},
 		created() {
 			this.game.socket = io("http://localhost:3000")
 			this.game.socket.on("connect", () => {})
@@ -116,10 +117,10 @@
 				if (this.nickname == "" || this.game.room == "") {
 					this.display = true
 				} else {
-					this.game.socket.emit("join-room", this.game.room, this.nickname, (callback) => {
-						this.game.playerslist = callback
-					})
-					this.roomState = !this.roomState
+					this.game.nickname = this.nickname
+					localStorage.nickname = this.game.nickname
+					this.game.socket.emit("join-room", this.game.room, this.game.nickname)
+					this.game.roomState = !this.game.roomState
 				}
 			},
 		},

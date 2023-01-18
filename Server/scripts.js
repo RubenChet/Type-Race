@@ -1,5 +1,5 @@
-// const json_file = require("./data/fr_1500.json")
-const json_file = require("./data/JavaScript.json")
+const json_file = require("./data/fr_1500.json")
+// const json_file = require("./data/JavaScript.json")
 
 const makeWordsList = () => {
   const arr = []

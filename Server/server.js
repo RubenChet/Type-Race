@@ -41,9 +41,13 @@ io.on("connection", (socket) => {
 			wpm: 0,
 			percentage: 0,
 			panda: "5",
+			isAdmin: false
+		}
+		if (Object.keys(rooms_list[room].players).length == 1) {
+			console.log("admin")
+			rooms_list[room].players[socket.id].isAdmin = true
 		}
 		io.to(room).emit("playerslist-update", rooms_list[room].players)
-		cb(rooms_list[socket.room].players)
 		console.log(socket.nickname + " joined room " + room)
 	})
 
