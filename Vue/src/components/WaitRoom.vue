@@ -30,13 +30,17 @@
 						<h1>Players List :</h1>
 						<div id="players_container" class="overflow-auto">
 							<div v-for="(player, index) in game.playerslist" :key="index" class="mt-2">
-								<div id="players" class="flex mx-2">
+								<div id="players" class="flex mx-2 items-center">
 									<p>{{ player.nickname }} :</p>
 									<p v-if="player.isTyping == true" class="text-blue-500">Is Typing</p>
 									<p v-else-if="player.isReady == false" class="text-red-500">Not Ready</p>
 									<p v-if="player.isReady == true" class="text-green-500">Is Ready</p>
 									<p v-if="clientIsAdmin == true && player.isAdmin == false" @click="kickPlayer(player.id)">Kick</p>
-									<p v-if="player.isAdmin == true" class="text-green-500">Admin</p>
+									<div class="flex" >
+										<p v-if="player.isAdmin == true" class="text-green-500">Admin</p>
+										<p v-if="player.isAdmin == true && game.socket.id == player.id">/</p>
+										<p v-if="game.socket.id == player.id" class="text-blue-500">You</p>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -94,7 +98,7 @@
 				rdy: false,
 				msg: "",
 				selectedLength: 0,
-                clientIsAdmin: false,
+				clientIsAdmin: false,
 				words_length: [
 					{ name: "10", key: 10 },
 					{ name: "25", key: 25 },
@@ -145,20 +149,22 @@
 				this.game.playerslist = val
 			})
 			this.game.socket.on("got-kick", () => {
-				alert("This is an alert dialog box")
+                this.game.socket.disconnect()
+                this.game.roomState = false
+                alert("You got kicked from the room !")
 			})
 			this.game.socket.on("message-update", (val) => {
 				this.game.messages = val
 			})
 			this.selectedLength = this.words_length[1].name
 		},
-        watch: {
-            'game.playerslist': function (val) {
-                if (Object.keys(val).length == 1 ){
-                    this.clientIsAdmin = true
-                }
-            }
-        }
+		watch: {
+			"game.playerslist": function (val) {
+				if (Object.keys(val).length == 1) {
+					this.clientIsAdmin = true
+				}
+			},
+		},
 	}
 </script>
 <style>

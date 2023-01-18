@@ -4,12 +4,12 @@
 		<div class="flex items-center justify-center space-x-2 mt-2">
 			<div>
 				<span class="p-float-label">
-					<InputText id="nickname" type="text" class="p-inputtext-sm" v-model="nickname" @keyup.enter="display = false, joinRoom()" />
+					<InputText id="nickname" type="text" class="p-inputtext-sm" v-model="nickname" @keyup.enter=";(display = false), joinRoom()" />
 					<label for="nickname">Nickname :</label>
 				</span>
 			</div>
 			<div>
-				<Tag class="mr-2" value="Set Nickname" rounded @click="display = false, joinRoom()"></Tag>
+				<Tag class="mr-2" value="Set Nickname" rounded @click=";(display = false), joinRoom()"></Tag>
 			</div>
 		</div>
 	</Dialog>
@@ -23,7 +23,7 @@
 						<p>{{ room.id }}</p>
 						<Knob v-model="room.players" :min="0" :max="10" readonly id="circle" />
 						<div>
-							<Button label="Join" @click="(game.room = room.id), joinRoom()" class="p-button-info p-button-sm p-button-rounded h-6" />
+							<Button label="Join" @click=";(game.room = room.id), joinRoom()" class="p-button-info p-button-sm p-button-rounded h-6" />
 						</div>
 					</div>
 				</div>
@@ -114,14 +114,21 @@
 		},
 		methods: {
 			joinRoom() {
-				if (this.nickname == "" || this.game.room == "") {
+				if (localStorage.nickname != undefined) {
+					this.chgNameJoin()
+				} else if (this.nickname == "") {
 					this.display = true
+				} else if (this.game.room == "") {
+					alert("Please enter a room code")
 				} else {
-					this.game.nickname = this.nickname
-					localStorage.nickname = this.game.nickname
-					this.game.socket.emit("join-room", this.game.room, this.game.nickname)
-					this.game.roomState = !this.game.roomState
+					this.chgNameJoin()
 				}
+			},
+			chgNameJoin() {
+				this.game.nickname = this.nickname
+				localStorage.nickname = this.game.nickname
+				this.game.socket.emit("join-room", this.game.room, this.game.nickname)
+				this.game.roomState = !this.game.roomState
 			},
 		},
 		beforeDestroy() {

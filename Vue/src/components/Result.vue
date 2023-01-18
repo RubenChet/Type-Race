@@ -5,7 +5,7 @@
 			<h1>TypeZone</h1>
 		</div>
 		<div class="flex mt-4">
-			<div class="flex-col overflow-auto border">
+			<div class="flex-col overflow-auto">
 				<div v-for="(player, index) in sortedPlayers" :key="index">
 					<div
 						class="flex space-x-8"
