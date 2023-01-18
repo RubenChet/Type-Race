@@ -1,28 +1,33 @@
 <template>
-	<div class="flex justify-center flex-wrap m-7 overflow-hidden w-full h-14" ref="flexWrapContainer">
-		<div
-			v-for="(word, index) in game.words"
-			:key="index"
-			class="flex mr-2"
-			v-bind:class="{
-				'animate__animated animate__headShake': index === word_index && makeBounce == true,
-				'underline decoration-red-500': index === word_index && underlineRed == true,
-				hidden: index < minIdx,
-			}"
-			@animationend=";(makeBounce = false), (underlineRed = false)"
-		>
-			<p
-				v-for="(letter, idx) in word"
-				:key="idx"
-				v-bind:class="{
-					cursor: idx === currentLetter && index === word_index,
-					underline: idx === currentLetter && index === word_index && caretTyped == true,
-					cursor_next: idx === word.length - 1 && idx === currentLetter - 1 && index === word_index,
-				}"
-				:style="{ color: game.letters[index][idx] }"
-			>
-				{{ letter }}
-			</p>
+	<div class="mt-10">
+		<div></div>
+		<div id="InputContainer" class="mt-2 flex justify-center overflow-hidden mx-auto">
+			<div class="flex justify-center flex-wrap m-7 overflow-hidden w-full h-14" ref="flexWrapContainer">
+				<div
+					v-for="(word, index) in game.words"
+					:key="index"
+					class="flex mr-2"
+					v-bind:class="{
+						'animate__animated animate__headShake': index === word_index && makeBounce == true,
+						'underline decoration-red-500': index === word_index && underlineRed == true,
+						hidden: index < minIdx,
+					}"
+					@animationend=";(makeBounce = false), (underlineRed = false)"
+				>
+					<p
+						v-for="(letter, idx) in word"
+						:key="idx"
+						v-bind:class="{
+							cursor: idx === currentLetter && index === word_index,
+							underline: idx === currentLetter && index === word_index && caretTyped == true,
+							cursor_next: idx === word.length - 1 && idx === currentLetter - 1 && index === word_index,
+						}"
+						:style="{ color: game.letters[index][idx] }"
+					>
+						{{ letter }}
+					</p>
+				</div>
+			</div>
 		</div>
 	</div>
 </template>

@@ -8,7 +8,7 @@
 							<p>{{ player.nickname }}</p>
 							<p>{{ (player.percentage, test(player)) }}</p>
 						</div>
-						<img src="../../assets/panda.png" alt="" class="w-24 absolute" :style="{ left: player.panda+'vh'  }" />
+						<img src="../../assets/panda.png" alt="" class="w-24 absolute" :style="{ left: player.panda + 'vh' }" />
 						<p>wpm : {{ player.wpm }}</p>
 					</div>
 					<Divider type="dashed" id="noMargin" />
@@ -16,10 +16,7 @@
 				<div class="mb-2"></div>
 			</div>
 		</div>
-		<div id="InputContainer" class="mt-10 flex justify-center overflow-hidden mx-auto">
-			<!-- <MultiTyperVue /> -->
-			<TryTyperVue />
-		</div>
+		<TryTyperVue />
 	</div>
 </template>
 <script>
