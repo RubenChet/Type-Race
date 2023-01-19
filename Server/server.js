@@ -41,10 +41,10 @@ io.on("connection", (socket) => {
 			wpm: 0,
 			percentage: 0,
 			panda: "5",
-			isAdmin: false
+			isAdmin: false,
+			rank: 0,
 		}
 		if (Object.keys(rooms_list[room].players).length == 1) {
-			console.log("admin")
 			rooms_list[room].players[socket.id].isAdmin = true
 		}
 		io.to(room).emit("playerslist-update", rooms_list[room].players)
@@ -59,7 +59,7 @@ io.on("connection", (socket) => {
 		io.to(socket.room).emit("message-update", rooms_list[socket.room].messages)
 	})
 
-	socket.on("client-ready", () => {
+	socket.on("client-ready", async () => {
 		if (rooms_list[socket.room].players[socket.id].isReady == true) {
 			rooms_list[socket.room].players[socket.id].isReady = false
 			io.to(socket.room).emit("playerslist-update", rooms_list[socket.room].players)
@@ -69,18 +69,18 @@ io.on("connection", (socket) => {
 			io.to(socket.room).emit("playerslist-update", rooms_list[socket.room].players)
 			rooms_list[socket.room].ready++
 			rooms_list[socket.room].arePlaying++
-			rooms_list[socket.room].players[socket.id].valid_list = undefined
-			rooms_list[socket.room].players[socket.id].chrono = 0
-			rooms_list[socket.room].players[socket.id].wpm = 0
 			if (rooms_list[socket.room].ready > 1 && rooms_list[socket.room].ready == io.sockets.adapter.rooms.get(socket.room).size) {
-				rooms_list[socket.room].wordlist = scriptFile.makeWordsList()
-				rooms_list[socket.room].letters = scriptFile.makeColors(rooms_list[socket.room].wordlist)
-				io.to(socket.room).emit("game-ready", rooms_list[socket.room])
+				rooms_list[socket.room].wordlist = await scriptFile.makeWordsList()
+				rooms_list[socket.room].letters = await scriptFile.makeColors(rooms_list[socket.room].wordlist)
 				Object.values(rooms_list[socket.room].players).map((player) => {
 					player.isReady = false
 					player.isTyping = true
+					player.valid_list = undefined
+					player.chrono = 0
+					player.wpm = 0
+					player.rank = 0
 				})
-				io.to(socket.room).emit("playerslist-update", rooms_list[socket.room].players)
+				io.to(socket.room).emit("game-ready", rooms_list[socket.room])
 				rooms_list[socket.room].ready = 0
 				rank = 1
 			}
@@ -109,6 +109,8 @@ io.on("connection", (socket) => {
 		rooms_list[socket.room].players[socket.id].isTyping = false
 		rooms_list[socket.room].has_finished++
 		rooms_list[socket.room].players[socket.id].rank = rank
+		rooms_list[socket.room].players[socket.id].panda = "5"
+
 		rank++
 		io.to(socket.room).emit("playerslist-update", rooms_list[socket.room].players)
 		if (rooms_list[socket.room].has_finished == rooms_list[socket.room].arePlaying) {
@@ -118,12 +120,29 @@ io.on("connection", (socket) => {
 
 	socket.on("disconnect", () => {
 		try {
+			//supprimer le joueur déconnecté de la liste des joueurs de la salle
 			delete rooms_list[socket.room].players[socket.id]
+			let gameHasAdmin = false
+			//vérifier si un autre joueur est administrateur
+			for (let player of Object.values(rooms_list[socket.room].players)) {
+				if (player.isAdmin) {
+					gameHasAdmin = true
+					break
+				}
+			}
+			//si aucun joueur n'est administrateur, définir le premier joueur comme administrateur
+			if (!gameHasAdmin) {
+				rooms_list[socket.room].players[Object.keys(rooms_list[socket.room].players)[0]].isAdmin = true
+			}
+			//envoyer une mise à jour de la liste des joueurs à tous les joueurs de la salle
 			io.to(socket.room).emit("playerslist-update", rooms_list[socket.room].players)
-		} catch {
+			console.log("user disconnected")
+		} catch (err) {
 			return
 		}
+		//vérifier si la salle est vide
 		if (io.sockets.adapter.rooms.get(socket.room) == undefined) {
+			//supprimer la salle
 			delete rooms_list[socket.room]
 			console.log("room deleted")
 		}

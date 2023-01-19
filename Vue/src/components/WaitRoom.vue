@@ -142,6 +142,7 @@
 			this.game.socket.on("game-ready", (val) => {
 				this.game.words = val.wordlist
 				this.game.letters = val.letters
+				this.game.playerslist = val.players
 				this.seconds = 3
 				this.clock()
 			})
@@ -162,6 +163,7 @@
 			"game.playerslist": function (val) {
 				if (Object.keys(val).length == 1) {
 					this.clientIsAdmin = true
+					console.log('je deviens admin')
 				}
 			},
 		},

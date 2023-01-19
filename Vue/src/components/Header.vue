@@ -1,7 +1,7 @@
 <template>
 	<div class="flex justify-center mt-10">
 		<div class="w-1/2 flex justify-between items-center">
-			<div class="flex items-center space-x-2" @click='goHome()'>
+			<div class="flex items-center space-x-2 cursor-pointer" @click='goHome()'>
 				<img src="../assets/logo.png" alt="" class="w-12" />
 				<h1>TypeZone</h1>
 			</div>

@@ -1,19 +1,9 @@
 <template>
 	<div class="mt-10">
-		<H1 class="ml-5">{{word_index}}/{{words_list_copy.length}}</H1>
+		<H1 class="ml-5">{{ word_index }}/{{ words_list_copy.length }}</H1>
 		<div id="InputContainer" class="mt-2 flex justify-center overflow-hidden mx-auto">
 			<div class="flex justify-center flex-wrap m-7 overflow-hidden w-full h-14" ref="flexWrapContainer">
-				<div
-					v-for="(word, index) in game.words"
-					:key="index"
-					class="flex mr-2"
-					v-bind:class="{
-						'animate__animated animate__headShake': index === word_index && makeBounce == true,
-						'underline decoration-red-500': index === word_index && underlineRed == true,
-						hidden: index < minIdx,
-					}"
-					@animationend=";(makeBounce = false), (underlineRed = false)"
-				>
+				<div v-for="(word, index) in game.words" :key="index" class="flex mr-2" v-bind:class="{ hidden: index < minIdx }">
 					<p
 						v-for="(letter, idx) in word"
 						:key="idx"
@@ -47,7 +37,6 @@
 				word_is_valid: [],
 				caretTyped: false,
 				interval: null,
-				makeBounce: false,
 				underlineRed: false,
 				elementCountsFRow: 0,
 				minIdx: 0,
@@ -104,9 +93,6 @@
 							this.elemCount++
 							this.currentLetter = 0
 							this.game.socket.emit("client-wordstate", this.word_is_valid, this.game.game_time)
-						} else {
-							this.makeBounce = true
-							this.underlineRed = true
 						}
 					} else {
 						this.game.letters[this.word_index].push("red")
@@ -119,7 +105,7 @@
 						this.currentLetter++
 					} else {
 						if (typedLetter == " ") {
-							this.makeBounce = true
+							// this.underlineRed = true
 						} else {
 							this.game.letters[this.word_index][this.currentLetter] = "red"
 							this.currentLetter++
@@ -127,7 +113,11 @@
 					}
 				}
 				window.removeEventListener("keypress", this.letter_listener)
-				if (this.word_index + 1 == this.game.words.length && this.currentLetter == this.words_list_copy[this.word_index].length) {
+				if (
+					this.word_index + 1 == this.game.words.length &&
+					this.currentLetter == this.words_list_copy[this.word_index].length &&
+					this.game.letters[this.word_index].includes("red") == false
+				) {
 					this.word_is_valid.push(true)
 					this.game.socket.emit("client-wordstate", this.word_is_valid, this.game.game_time)
 					this.game.socket.emit("client-finish", this.word_is_valid, this.game.game_time)

@@ -16,7 +16,7 @@ export const useGameStore = defineStore("game", {
     game_time: 3,
     timer: 0,
     words_state: [],
-    num_game: 1,
+    gameNumber: 0,
   }),
   getters: {
     doubleCount: (state) => state.count * 2,
