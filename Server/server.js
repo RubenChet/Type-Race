@@ -50,7 +50,7 @@ io.on("connection", (socket) => {
 			rooms_list[room].players[socket.id].isAdmin = true
 		}
 		io.to(room).emit("playerslist-update", rooms_list[room].players)
-		console.log(socket.nickname + " joined room " + room)
+		console.log(socket.nickname + " joined room: " + room)
 	})
 
 	socket.on("send-message", (val, cb) => {
@@ -88,12 +88,35 @@ io.on("connection", (socket) => {
 			}
 		}
 	})
-	socket.on("ask-kick", (id) => {
+	socket.on("ask-kick", (id, room) => {
 		delete rooms_list[socket.room].players[id]
 		const socketToKick = clients[id]
-		socketToKick.leaveAll()
+		socketToKick.leave(room)
 		socketToKick.emit("got-kick")
 		io.to(socket.room).emit("playerslist-update", rooms_list[socket.room].players)
+	})
+	socket.on("goHome", () => {
+		if (socket.room) {
+			delete rooms_list[socket.room].players[socket.id]
+			socket.leave(socket.room)
+			console.log(socket.nickname + " leaved room: " + socket.room)
+			let gameHasAdmin = false
+			//vérifier si un autre joueur est administrateur
+			for (let player of Object.values(rooms_list[socket.room].players)) {
+				if (player.isAdmin) {
+					gameHasAdmin = true
+					break
+				}
+			}
+			//si aucun joueur n'est administrateur, définir le premier joueur comme administrateur
+			if (!gameHasAdmin && Object.keys(rooms_list[socket.room].players).length > 0) {
+				rooms_list[socket.room].players[Object.keys(rooms_list[socket.room].players)[0]].isAdmin = true
+				io.to(socket.room).emit("playerslist-update", rooms_list[socket.room].players)
+			} else if (Object.keys(rooms_list[socket.room].players).length == 0) {
+				delete rooms_list[socket.room]
+				console.log("room: " + socket.room + " deleted")
+			}
+		}
 	})
 
 	socket.on("client-wordstate", (val, time) => {
@@ -121,32 +144,35 @@ io.on("connection", (socket) => {
 	})
 
 	socket.on("disconnect", () => {
-		try {
-			//supprimer le joueur déconnecté de la liste des joueurs de la salle
-			delete rooms_list[socket.room].players[socket.id]
-			let gameHasAdmin = false
-			//vérifier si un autre joueur est administrateur
-			for (let player of Object.values(rooms_list[socket.room].players)) {
-				if (player.isAdmin) {
-					gameHasAdmin = true
-					break
+		if (socket.room) {
+			try {
+				//supprimer le joueur déconnecté de la liste des joueurs de la salle
+				delete rooms_list[socket.room].players[socket.id]
+				let gameHasAdmin = false
+				//vérifier si un autre joueur est administrateur
+				for (let player of Object.values(rooms_list[socket.room].players)) {
+					if (player.isAdmin) {
+						gameHasAdmin = true
+						break
+					}
 				}
+				//si aucun joueur n'est administrateur, définir le premier joueur comme administrateur
+				if (!gameHasAdmin && Object.keys(rooms_list[socket.room].players).length > 0) {
+					rooms_list[socket.room].players[Object.keys(rooms_list[socket.room].players)[0]].isAdmin = true
+				}
+				//envoyer une mise à jour de la liste des joueurs à tous les joueurs de la salle
+				io.to(socket.room).emit("playerslist-update", rooms_list[socket.room].players)
+				console.log(socket.nickname + " leaved room: " + socket.room)
+			} catch (err) {
+				console.log(err)
 			}
-			//si aucun joueur n'est administrateur, définir le premier joueur comme administrateur
-			if (!gameHasAdmin) {
-				rooms_list[socket.room].players[Object.keys(rooms_list[socket.room].players)[0]].isAdmin = true
+			//vérifier si la salle est vide
+			if (io.sockets.adapter.rooms.get(socket.room) == undefined) {
+				//supprimer la salle
+				room = socket.room
+				delete rooms_list[socket.room]
+				console.log("room: " + room + " deleted")
 			}
-			//envoyer une mise à jour de la liste des joueurs à tous les joueurs de la salle
-			io.to(socket.room).emit("playerslist-update", rooms_list[socket.room].players)
-			console.log("user disconnected")
-		} catch (err) {
-			return
-		}
-		//vérifier si la salle est vide
-		if (io.sockets.adapter.rooms.get(socket.room) == undefined) {
-			//supprimer la salle
-			delete rooms_list[socket.room]
-			console.log("room deleted")
 		}
 	})
 })

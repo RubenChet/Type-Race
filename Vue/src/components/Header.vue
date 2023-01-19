@@ -26,8 +26,8 @@
 		},
 		methods: {
 			goHome() {
+				this.game.socket.emit("goHome")
 				this.game.roomState = false
-				this.game.socket.disconnect()
 			},
 		},
 	}

@@ -132,8 +132,8 @@
 					}
 				}, 1000)
 			},
-			kickPlayer(val) {
-				this.game.socket.emit("ask-kick", val)
+			kickPlayer(id) {
+				this.game.socket.emit("ask-kick", id, this.game.room)
 			},
 			send_msg(val) {
 				this.game.socket.emit("send-message", val)
@@ -152,9 +152,8 @@
 				this.game.playerslist = val
 			})
 			this.game.socket.on("got-kick", () => {
-				this.game.socket.disconnect()
-				this.game.roomState = false
 				this.game.kickedList.push(this.game.room)
+				this.game.roomState = false
 			})
 			this.game.socket.on("message-update", (val) => {
 				this.game.messages = val
