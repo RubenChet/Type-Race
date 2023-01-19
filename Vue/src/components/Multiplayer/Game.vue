@@ -21,7 +21,6 @@
 	</div>
 </template>
 <script>
-	import MultiTyperVue from "./MultiTyper.vue"
 	import TryTyperVue from "./TryType.vue"
 	import { useGameStore } from "../../store/game"
 	export default {
@@ -35,7 +34,6 @@
 			}
 		},
 		components: {
-			MultiTyperVue,
 			TryTyperVue,
 		},
 		created() {

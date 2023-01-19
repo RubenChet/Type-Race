@@ -1,8 +1,8 @@
 <script setup>
 import HeaderVue from './components/Header.vue';
 import NavbarVue from './components/Navbar.vue';
-import TextVue from './components/Solo.vue';
-import MultiVue from './components/ChoseRoom.vue';
+// import TextVue from './components/Solo/Solo.vue';
+import MultiplayerVue from './components/Multiplayer/Multiplayer.vue';
 import { useGameStore } from './store/game'
 const game = useGameStore()
 </script>
@@ -12,12 +12,13 @@ const game = useGameStore()
   <div v-if="game.isRunning != true">
     <NavbarVue />
   </div>
-  <div v-if="game.mode == 'solo'">
+  <!-- <div v-if="game.mode == 'solo'">
     <TextVue />
-  </div>
-  <div v-else-if="game.mode == 'multi'">
-    <MultiVue />
-  </div>
+  </div> -->
+  <MultiplayerVue />
+  <!-- <div v-else-if="game.mode == 'multi'">
+   
+  </div> -->
 </template>
 
 <style>

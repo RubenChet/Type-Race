@@ -40,8 +40,10 @@ io.on("connection", (socket) => {
 			id: socket.id,
 			wpm: 0,
 			percentage: 0,
+			chrono: 0,
 			panda: "5",
 			isAdmin: false,
+			isTyping: false,
 			rank: 0,
 		}
 		if (Object.keys(rooms_list[room].players).length == 1) {

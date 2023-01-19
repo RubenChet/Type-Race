@@ -13,6 +13,9 @@
 			</div>
 		</div>
 	</Dialog>
+	<Dialog header="Warning" v-model:visible="displaykicked">
+		<p class="italic">You got kicked from this room !</p>
+	</Dialog>
 	<div class="flex justify-center mt-8">
 		<div v-if="!game.roomState" class="flex justify-center">
 			<div id="InputContainer">
@@ -73,6 +76,7 @@
 				nickname: "",
 				isPublic: true,
 				display: false,
+				displaykicked: false,
 				pubRooms: [
 					{
 						id: "Room-fr",
@@ -114,22 +118,25 @@
 		},
 		methods: {
 			joinRoom() {
-				if (localStorage.nickname != undefined) {
-					this.chgNameJoin()
-				} else if (this.nickname == "") {
-					this.display = true
-				} else if (this.game.room == "") {
-					alert("Please enter a room code")
+				if (this.game.kickedList.includes(this.game.room)) {
+					this.displaykicked = true
 				} else {
-					this.chgNameJoin()
+					if (localStorage.nickname != undefined) {
+						this.chgNameJoin()
+					} else if (this.nickname == "") {
+						this.display = true
+					} else if (this.game.room == "") {
+						alert("Please enter a room code")
+					} else {
+						this.chgNameJoin()
+					}
 				}
 			},
 			chgNameJoin() {
 				if (this.nickname != "") {
 					this.game.nickname = this.nickname
 					localStorage.nickname = this.game.nickname
-				}
-				else{
+				} else {
 					this.game.nickname = localStorage.nickname
 				}
 				this.game.socket.emit("join-room", this.game.room, this.game.nickname)
@@ -138,6 +145,9 @@
 		},
 		beforeDestroy() {
 			t.disconnect()
+		},
+		unmounted() {
+			console.log("unmounted")
 		},
 	}
 </script>

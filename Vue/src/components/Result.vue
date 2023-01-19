@@ -7,15 +7,14 @@
 		<div class="flex mt-4">
 			<div class="flex-col overflow-auto">
 				<div v-for="(player, index) in sortedPlayers" :key="index">
-					<div
-						class="flex space-x-8"
-						v-bind:class="{ 'text-amber-300': player.rank === 1, 'text-neutral-100': player.rank === 2, 'text-[#CD7F32]': player.rank === 3 }"
-					>
-						<p v-if="player.isTyping == false && player.rank != 0"  >{{ player.rank }}-</p>
-						<p>{{ player.nickname }}</p>
-						<p v-if="player.isTyping == false && player.rank != 0">WPM : {{ player.wpm }}</p>
-						<p v-if="player.isTyping == false && player.rank != 0">Time : {{ player.chrono }}</p>
-						<p v-if="player.isTyping == true" class="text-blue-500">Is Typing</p>
+					<div class="flex space-x-8 items-center" v-bind:class="{ 'text-amber-300': player.rank === 1, 'text-neutral-100': player.rank === 2, 'text-[#CD7F32]': player.rank === 3 }">
+						<p v-if="player.isTyping == false && player.rank != 0">{{ player.rank }}-</p>
+						<div class="flex-col text-center" >
+							<p>{{ player.nickname }}</p>
+							<p v-if="player.isTyping == true" class="text-blue-500 text-[10px]">Typing ...</p>
+						</div>
+						<p>WPM : {{ player.wpm }}</p>
+						<p>Time : {{ player.chrono }}</p>
 					</div>
 				</div>
 			</div>
@@ -23,8 +22,8 @@
 			<div class="mx-auto flex-col">
 				<h1>graph</h1>
 				<div class="flex justify-center items-center space-x-10">
-                    <i class="pi pi-replay"></i>
-                    <i class="pi pi-images"></i>
+					<i class="pi pi-replay"></i>
+					<i class="pi pi-images"></i>
 				</div>
 			</div>
 		</div>

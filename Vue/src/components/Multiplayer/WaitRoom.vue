@@ -1,6 +1,6 @@
 <template>
 	<div v-if="rdy && seconds > 0">{{ seconds }}</div>
-	<MultiVue v-else-if="game.isRunning == true" />
+	<GameVue v-else-if="game.isRunning == true" />
 	<div id="WaitRoom" v-else class="flex justify-center space-x-48">
 		<div id="InputContainer">
 			<div id="chat" class="m-4">
@@ -32,11 +32,11 @@
 							<div v-for="(player, index) in game.playerslist" :key="index" class="mt-2">
 								<div id="players" class="flex mx-2 items-center">
 									<p>{{ player.nickname }} :</p>
-									<p v-if="player.isTyping == true" class="text-blue-500">Is Typing</p>
+									<p v-if="player.isTyping == true" class="text-blue-500">Typing ...</p>
 									<p v-else-if="player.isReady == false" class="text-red-500">Not Ready</p>
 									<p v-if="player.isReady == true" class="text-green-500">Is Ready</p>
-									<p v-if="clientIsAdmin == true && player.isAdmin == false" @click="kickPlayer(player.id)">Kick</p>
-									<div class="flex" >
+									<p v-if="clientIsAdmin == true && player.isAdmin == false" @click="kickPlayer(player.id)" class="cursor-pointer">Kick</p>
+									<div class="flex">
 										<p v-if="player.isAdmin == true" class="text-green-500">Admin</p>
 										<p v-if="player.isAdmin == true && game.socket.id == player.id">/</p>
 										<p v-if="game.socket.id == player.id" class="text-blue-500">You</p>
@@ -64,8 +64,8 @@
 							</div>
 						</div>
 						<div id="players" class="flex mx-4 mt-7">
-							<p>Punctuation</p>
-							<p>Numbers</p>
+							<button @click="punctuation = false" :class="{ 'line-through': punctuation == false, 'text-white': punctuation == true }">Punctuation</button>
+							<button @click="numbers = false" :class="{ 'line-through': numbers == false, 'text-white': numbers == true }">Numbers</button>
 						</div>
 						<div class="flex justify-center mt-4">
 							<Button v-if="rdy == true" id="btn_chat" label="UnReady" class="p-button-rounded p-button-info" @click="isReady()" />
@@ -78,9 +78,9 @@
 	</div>
 </template>
 <script>
-	import MultiVue from "./Multiplayer/Multi.vue"
-	import ResultVue from "./Result.vue"
-	import { useGameStore } from "../store/game"
+	import GameVue from "./Game.vue"
+	import ResultVue from "../Result.vue"
+	import { useGameStore } from "../../store/game"
 	import InputText from "primevue/inputtext"
 	import Button from "primevue/button"
 	import Dropdown from "primevue/dropdown"
@@ -99,6 +99,8 @@
 				msg: "",
 				selectedLength: 0,
 				clientIsAdmin: false,
+				punctuation: false,
+				numbers: false,
 				words_length: [
 					{ name: "10", key: 10 },
 					{ name: "25", key: 25 },
@@ -108,7 +110,7 @@
 			}
 		},
 		components: {
-			MultiVue,
+			GameVue,
 			ResultVue,
 			InputText,
 			Button,
@@ -150,9 +152,9 @@
 				this.game.playerslist = val
 			})
 			this.game.socket.on("got-kick", () => {
-                this.game.socket.disconnect()
-                this.game.roomState = false
-                alert("You got kicked from the room !")
+				this.game.socket.disconnect()
+				this.game.roomState = false
+				this.game.kickedList.push(this.game.room)
 			})
 			this.game.socket.on("message-update", (val) => {
 				this.game.messages = val
@@ -160,10 +162,9 @@
 			this.selectedLength = this.words_length[1].name
 		},
 		watch: {
-			"game.playerslist": function (val) {
+			'game.playerslist': function (val) {
 				if (Object.keys(val).length == 1) {
 					this.clientIsAdmin = true
-					console.log('je deviens admin')
 				}
 			},
 		},
