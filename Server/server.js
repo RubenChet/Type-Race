@@ -45,6 +45,7 @@ io.on("connection", (socket) => {
 			isAdmin: false,
 			isTyping: false,
 			rank: 0,
+			numGame: 0,
 		}
 		if (Object.keys(rooms_list[room].players).length == 1) {
 			rooms_list[room].players[socket.id].isAdmin = true
@@ -81,6 +82,7 @@ io.on("connection", (socket) => {
 					player.chrono = 0
 					player.wpm = 0
 					player.rank = 0
+					player.numGame ++
 				})
 				io.to(socket.room).emit("game-ready", rooms_list[socket.room])
 				rooms_list[socket.room].ready = 0

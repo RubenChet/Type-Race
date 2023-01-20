@@ -1,50 +1,28 @@
 <template>
 	<div class="flex-col w-3/5 mx-auto">
 		<div id="InputContainer" class="flex justify-center w-fit mx-auto">
-			<div class="mx-4 justify-center w-[65vh]">
-				<div v-for="(player, index) in sortedPlayers" :key="index" class="mx-auto">
-					<div v-if="player.isTyping == true" class="flex justify-center items-center h-20 relative" id="rank_div">
-						<div class="flex-col">
-							<p>{{ player.nickname }}</p>
-							<p>{{ player.percentage }}</p>
-						</div>
-						<img src="../../assets/panda.png" alt="" class="w-24 absolute" :style="{ left: player.panda + 'vh' }" />
-						<p>wpm : {{ player.wpm }}</p>
-					</div>
-					<div v-else>Fini</div>
-					<Divider type="dashed" id="noMargin" />
-				</div>
-				<div class="mb-2"></div>
-			</div>
+			<PandaVue />
 		</div>
 		<TryTyperVue />
 	</div>
 </template>
 <script>
 	import TryTyperVue from "./TryType.vue"
+	import PandaVue from "./Panda.vue"
 	import { useGameStore } from "../../store/game"
 	export default {
 		setup() {
 			const game = useGameStore()
 			return { game }
 		},
-		data() {
-			return {
-				clicked: false,
-			}
-		},
 		components: {
 			TryTyperVue,
+			PandaVue,
 		},
 		created() {
 			this.game.socket.on("playerslist-update", (val) => {
 				this.game.playerslist = val
 			})
-		},
-		computed: {
-			sortedPlayers() {
-				return Object.values(this.game.playerslist).sort((a, b) => b.wpm - a.wpm)
-			},
 		},
 	}
 </script>
@@ -53,7 +31,6 @@
 		background-color: #2c2e31;
 		border-radius: 10px;
 	}
-
 	#rank_div {
 		justify-content: space-between;
 	}
