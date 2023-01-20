@@ -11,7 +11,7 @@
 						class="flex space-x-8 items-center"
 						v-bind:class="{ 'text-amber-300': player.rank === 1, 'text-neutral-100': player.rank === 2, 'text-[#CD7F32]': player.rank === 3 }"
 					>
-						<p v-if="player.isTyping == false && player.rank != 0">{{ player.rank }}-</p>
+						<p v-if="player.isTyping == false && player.rank != 0">{{ player.rank }} -</p>
 						<div class="flex-col text-center">
 							<p>{{ player.nickname }}</p>
 							<p v-if="player.isTyping == true" class="text-blue-500 text-[10px]">Typing ...</p>
@@ -23,7 +23,7 @@
 			</div>
 			<Divider layout="vertical" />
 			<div class="mx-auto flex-col">
-				<h1>graph</h1>
+				<h1>graph</h1>w²
 				<div class="flex justify-center items-center space-x-10">
 					<i class="pi pi-replay"></i>
 					<i class="pi pi-images"></i>

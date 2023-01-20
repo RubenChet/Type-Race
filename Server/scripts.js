@@ -1,5 +1,4 @@
-// const json_file = require("./languages/french.json")
-const json_file = require("./languages/test.json")
+const json_file = require("./languages/french.json")
 
 async function makeWordsList() {
 	const arr = []

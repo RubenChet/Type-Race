@@ -139,11 +139,11 @@
 			clock() {
 				this.game.game_time = 0
 				this.interval = setInterval(() => {
-					this.game.game_time++
+					this.game.game_time+=0.01
 					if (this.game.isRunning == false) {
 						clearInterval(this.interval)
 					}
-				}, 1000)
+				}, 10)
 			},
 			Check_elements() {
 				const parent = this.$refs.flexWrapContainer // recupère les caractèristiques de l'élement contenant la liste de mots

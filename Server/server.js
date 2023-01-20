@@ -45,7 +45,7 @@ io.on("connection", (socket) => {
 			isAdmin: false,
 			isTyping: false,
 			rank: 0,
-			numGame: 0,
+			inGame: false,
 		}
 		if (Object.keys(rooms_list[room].players).length == 1) {
 			rooms_list[room].players[socket.id].isAdmin = true
@@ -82,7 +82,7 @@ io.on("connection", (socket) => {
 					player.chrono = 0
 					player.wpm = 0
 					player.rank = 0
-					player.numGame ++
+					player.inGame = true
 				})
 				io.to(socket.room).emit("game-ready", rooms_list[socket.room])
 				rooms_list[socket.room].ready = 0
@@ -123,7 +123,7 @@ io.on("connection", (socket) => {
 
 	socket.on("client-wordstate", (val, time) => {
 		rooms_list[socket.room].players[socket.id].valid_list = val
-		rooms_list[socket.room].players[socket.id].chrono = time
+		rooms_list[socket.room].players[socket.id].chrono = time.toFixed(2)
 		rooms_list[socket.room].players[socket.id].wpm = (val.length / (time / 60)).toFixed(0)
 		rooms_list[socket.room].players[socket.id].percentage = ((val.length / rooms_list[socket.room].wordlist.length) * 100).toFixed(0)
 		rooms_list[socket.room].players[socket.id].panda = 5 + (rooms_list[socket.room].players[socket.id].percentage * (50 - 5)) / 100
@@ -137,11 +137,12 @@ io.on("connection", (socket) => {
 		rooms_list[socket.room].has_finished++
 		rooms_list[socket.room].players[socket.id].rank = rank
 		rooms_list[socket.room].players[socket.id].panda = "5"
-
+		
 		rank++
 		io.to(socket.room).emit("playerslist-update", rooms_list[socket.room].players)
 		if (rooms_list[socket.room].has_finished == rooms_list[socket.room].arePlaying) {
 			rooms_list[socket.room].ready = 0
+			rooms_list[socket.room].players[socket.id].inGame = false
 		}
 	})
 
