@@ -18,6 +18,12 @@ export const useGameStore = defineStore("game", {
     words_state: [],
     gameNumber: 0,
     kickedList: [],
+    roomSettigns: {
+      langue: "french",
+      nbWords: 25,
+      punctuation: false,
+      numbers: false,
+    },
   }),
   getters: {
     doubleCount: (state) => state.count * 2,

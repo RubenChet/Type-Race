@@ -25,8 +25,8 @@
 			<div class="mx-auto flex-col">
 				<h1>graph</h1>w²
 				<div class="flex justify-center items-center space-x-10">
-					<i class="pi pi-replay"></i>
-					<i class="pi pi-images"></i>
+					<i class="pi pi-replay cursor-pointer"></i>
+					<i class="pi pi-images cursor-pointer"></i>
 				</div>
 			</div>
 		</div>

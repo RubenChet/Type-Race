@@ -4,12 +4,12 @@
 		<div class="flex items-center justify-center space-x-2 mt-2">
 			<div>
 				<span class="p-float-label">
-					<InputText id="nickname" type="text" class="p-inputtext-sm" v-model="nickname" @keyup.enter=";(display = false), joinRoom()" />
+					<InputText id="nickname" type="text" class="p-inputtext-sm" v-model="nickname" @keyup.enter=";(display = false), verifJoinRoom(roomName)" />
 					<label for="nickname">Nickname :</label>
 				</span>
 			</div>
 			<div>
-				<Tag class="mr-2" value="Set Nickname" rounded @click=";(display = false), joinRoom()"></Tag>
+				<Tag class="mr-2" value="Set Nickname" rounded @click=";(display = false), verifJoinRoom(roomName)"></Tag>
 			</div>
 		</div>
 	</Dialog>
@@ -25,7 +25,7 @@
 					<p>{{ room.id }}</p>
 					<Knob v-model="room.players" :min="0" :max="10" readonly id="circle" />
 					<div>
-						<Button label="Join" @click=";(game.room = room.id), joinRoom()" class="p-button-info p-button-sm p-button-rounded h-6" />
+						<Button label="Join" @click="verifJoinRoom(room.id)" class="p-button-info p-button-sm p-button-rounded h-6" />
 					</div>
 				</div>
 			</div>
@@ -37,16 +37,23 @@
 				<div class="mt-3 flex justify-center items-center space-x-3">
 					<button @click="isPublic = true" :class="{ 'line-through': isPublic == false, 'text-white': isPublic == true }">Public</button>
 					<button @click="isPublic = false" :class="{ 'line-through': isPublic == true, 'text-white': isPublic == false }">Private</button>
-					<Button label="Create" @click="joinRoom()" class="p-button-secondary p-button-sm p-button-rounded h-6" />
+					<Button label="Create" @click="CreateRoom()" class="p-button-secondary p-button-sm p-button-rounded h-6" />
 				</div>
 				<div class="mt-4">
 					<H1 class="flex items-start italic">Join a Private Room :</H1>
 					<div class="mt-2 flex justify-center items-center space-x-2 text-xs">
 						<span class="p-float-label">
-							<InputText id="room" type="text" class="p-inputtext-sm" v-model="game.room" @keyup.enter="joinRoom()" />
+							<InputText id="room" type="text" class="p-inputtext-sm" v-model="roomName" @keyup.enter="verifJoinRoom(roomName)" />
 							<label for="room">Room Code :</label>
 						</span>
-						<Button label="Join" @click="joinRoom()" class="p-button-info p-button-sm p-button-rounded" />
+						<Button label="Join" @click="verifJoinRoom(roomName)" class="p-button-info p-button-sm p-button-rounded" />
+					</div>
+					<div class="flex items-center">
+						<img src="../../assets/panda_typing.png" class="h-32" alt="" />
+						<div class="text-xl flex-col text-center">
+							<p>Have fun !</p>
+							<span>🐼🐼</span>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -67,7 +74,7 @@
 		},
 		data() {
 			return {
-				roomType: "",
+				roomName: "",
 				nickname: "",
 				isPublic: true,
 				display: false,
@@ -104,22 +111,42 @@
 			Dialog,
 		},
 		methods: {
-			joinRoom() {
+			CreateRoom() {
+				const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+				const numbers = "0123456789"
+				let randomString = ""
+				for (let i = 0; i < 2; i++) {
+					randomString += letters.charAt(Math.floor(Math.random() * letters.length))
+				}
+				for (var i = 0; i < 3; i++) {
+					randomString += numbers.charAt(Math.floor(Math.random() * numbers.length))
+				}
+				this.verifJoinRoom(randomString)
+			},
+			verifJoinRoom(val) {
+				this.game.room = val
 				if (this.game.kickedList.includes(this.game.room)) {
 					this.displaykicked = true
 				} else {
 					if (localStorage.nickname != undefined) {
-						this.chgNameJoin()
+						if (this.game.room == "") {
+							alert("Please enter a room code")
+						} else {
+							this.Join()
+						}
 					} else if (this.nickname == "") {
 						this.display = true
-					} else if (this.game.room == "") {
-						alert("Please enter a room code")
 					} else {
-						this.chgNameJoin()
+						console.log(this.game.room)
+						if (this.game.room == "") {
+							alert("Please enter a room code")
+						} else {
+							this.Join()
+						}
 					}
 				}
 			},
-			chgNameJoin() {
+			Join() {
 				if (this.nickname != "") {
 					this.game.nickname = this.nickname
 					localStorage.nickname = this.game.nickname

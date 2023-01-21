@@ -6,7 +6,7 @@ const io = require("socket.io")(3000, {
 	},
 })
 
-const rooms_list = {} // Dictionnarie permettant de compter le nombre de clients ready dans une room spécifique
+let rooms_list = {} // Dictionnarie représentant les salles de jeu
 const clients = {}
 let rank = 1
 
@@ -19,11 +19,17 @@ io.on("connection", (socket) => {
 		if (!(room in rooms_list)) {
 			rooms_list[room] = {
 				ready: 0,
-				wordlist: "",
-				letters: "",
+				wordlist: null,
+				letters: null,
 				has_finished: 0,
 				arePlaying: 0,
 				messages: [],
+				settings: {
+					langue: "French",
+					nbWords: 25,
+					punctuation: false,
+					numbers: false,
+				},
 				players: {},
 			}
 		}
@@ -51,6 +57,7 @@ io.on("connection", (socket) => {
 			rooms_list[room].players[socket.id].isAdmin = true
 		}
 		io.to(room).emit("playerslist-update", rooms_list[room].players)
+		socket.to(socket.room).emit("settings-update", rooms_list[socket.room].settings)
 		console.log(socket.nickname + " joined room: " + room)
 	})
 
@@ -60,6 +67,11 @@ io.on("connection", (socket) => {
 			message: val,
 		})
 		io.to(socket.room).emit("message-update", rooms_list[socket.room].messages)
+	})
+
+	socket.on("settings-changed", (settings) => {
+		rooms_list[socket.room].settings = settings
+		socket.to(socket.room).emit("settings-update", rooms_list[socket.room].settings)
 	})
 
 	socket.on("client-ready", async () => {
@@ -73,7 +85,7 @@ io.on("connection", (socket) => {
 			rooms_list[socket.room].ready++
 			rooms_list[socket.room].arePlaying++
 			if (rooms_list[socket.room].ready > 1 && rooms_list[socket.room].ready == io.sockets.adapter.rooms.get(socket.room).size) {
-				rooms_list[socket.room].wordlist = await scriptFile.makeWordsList()
+				rooms_list[socket.room].wordlist = await scriptFile.makeWordsList(rooms_list[socket.room].settings.langue, rooms_list[socket.room].settings.nbWords)
 				rooms_list[socket.room].letters = await scriptFile.makeColors(rooms_list[socket.room].wordlist)
 				Object.values(rooms_list[socket.room].players).map((player) => {
 					player.isReady = false
@@ -137,7 +149,7 @@ io.on("connection", (socket) => {
 		rooms_list[socket.room].has_finished++
 		rooms_list[socket.room].players[socket.id].rank = rank
 		rooms_list[socket.room].players[socket.id].panda = "5"
-		
+
 		rank++
 		io.to(socket.room).emit("playerslist-update", rooms_list[socket.room].players)
 		if (rooms_list[socket.room].has_finished == rooms_list[socket.room].arePlaying) {

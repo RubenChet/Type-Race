@@ -1,10 +1,11 @@
-const json_file = require("./languages/french.json")
 
-async function makeWordsList() {
+async function makeWordsList(langue, nbWords) {
+	console.log('bonjour la langue est : '+langue)
+	const json_file = require("./languages/"+langue+".json")
 	const arr = []
 	let min = 0
 	let max = json_file.length - 1
-	for (let i = 0; i < 25; i++) {
+	for (let i = 0; i < nbWords; i++) {
 		let randomNumber = Math.floor(Math.random() * (max - min + 1)) + min
 		if (json_file[randomNumber]) {
 			arr.push(json_file[randomNumber]) // mot aléatoire

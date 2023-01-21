@@ -35,7 +35,7 @@
 									<p v-if="player.isTyping == true" class="text-blue-500">Typing ...</p>
 									<p v-else-if="player.isReady == false" class="text-red-500">Not Ready</p>
 									<p v-if="player.isReady == true" class="text-green-500">Is Ready</p>
-									<p v-if="clientIsAdmin == true && player.isAdmin == false" @click="kickPlayer(player.id)" class="cursor-pointer">Kick</p>
+									<p v-if="game.playerslist[game.socket.id].isAdmin == true && player.isAdmin == false" @click="kickPlayer(player.id)" class="cursor-pointer">Kick</p>
 									<div class="flex">
 										<p v-if="player.isAdmin == true" class="text-green-500">Admin</p>
 										<p v-if="player.isAdmin == true && game.socket.id == player.id">/</p>
@@ -44,8 +44,8 @@
 								</div>
 							</div>
 						</div>
-						<div class="mt-2 mx-10 flex justify-end">
-							<h1>Invite Friends</h1>
+						<div class="mt-2 mx-6 flex items-center justify-end">
+							<p>Invite Friends<i class="cursor-pointer ml-3 pi pi-external-link"></i></p>
 						</div>
 					</div>
 				</div>
@@ -54,18 +54,28 @@
 						<h1>Game Settings :</h1>
 						<div class="flex space-x-6 items-center mt-4">
 							<p>Language :</p>
-							<Dropdown v-model="selectedLang" :options="languages" placeholder="French" />
+							<Dropdown v-model="game.roomSettigns.langue" :options="languages"  placeholder="French" />
 						</div>
 						<div class="flex space-x-6 items-center mt-6">
 							<p>Words :</p>
-							<div v-for="(val, index) in words_length" :key="index" class="field-radiobutton flex flex-col">
-								<label :for="val.key">{{ val.name }}</label>
-								<RadioButton :inputId="val.key" name="val" :value="val.name" v-model="selectedval" />
+							<div v-for="value of chose_length" :key="chose_length.key" class="field-radiobutton flex flex-col">
+								<label :for="value.key">{{ value.name }}</label>
+								<RadioButton :inputId="value.key" name="value" :value="value.name" v-model="game.roomSettigns.nbWords" />
 							</div>
 						</div>
 						<div id="players" class="flex mx-4 mt-7">
-							<button @click="punctuation = false" :class="{ 'line-through': punctuation == false, 'text-white': punctuation == true }">Punctuation</button>
-							<button @click="numbers = false" :class="{ 'line-through': numbers == false, 'text-white': numbers == true }">Numbers</button>
+							<button
+								@click="game.roomSettigns.punctuation = false"
+								:class="{ 'line-through': game.roomSettigns.punctuation == false, 'text-white': game.roomSettigns.punctuation == true }"
+							>
+								Punctuation
+							</button>
+							<button
+								@click="game.roomSettigns.numbers = false"
+								:class="{ 'line-through': game.roomSettigns.numbers == false, 'text-white': game.roomSettigns.numbers == true }"
+							>
+								Numbers
+							</button>
 						</div>
 						<div class="flex justify-center mt-4">
 							<Button v-if="rdy == true" id="btn_chat" label="UnReady" class="p-button-rounded p-button-info" @click="isReady()" />
@@ -98,15 +108,14 @@
 				rdy: false,
 				msg: "",
 				selectedLength: 0,
-				clientIsAdmin: false,
-				punctuation: false,
-				numbers: false,
-				words_length: [
-					{ name: "10", key: 10 },
-					{ name: "25", key: 25 },
-					{ name: "50", key: 50 },
-					{ name: "100", key: 100 },
+				chose_length: [
+					{ name: 10, key: "10" },
+					{ name: 25, key: "25" },
+					{ name: 50, key: "50" },
+					{ name: 100, key: "100" },
 				],
+				languages: ["French", "English", "JavaScript", "Python" ],
+				oldSettigns: [],
 			}
 		},
 		components: {
@@ -139,6 +148,9 @@
 				this.game.socket.emit("send-message", val)
 				this.msg = ""
 			},
+			changeSettigns() {
+				this.game.socket.emit("settings-changed", this.game.roomSettigns)
+			},
 		},
 		created() {
 			this.game.socket.on("game-ready", (val) => {
@@ -158,13 +170,22 @@
 			this.game.socket.on("message-update", (val) => {
 				this.game.messages = val
 			})
-			this.selectedLength = this.words_length[1].name
+			this.game.socket.on("settings-update", (val) => {
+				this.game.roomSettigns = val
+			})
+		},
+		mounted() {
+			this.oldSettigns = { ...this.game.roomSettigns }
 		},
 		watch: {
-			'game.playerslist': function (val) {
-				if (Object.keys(val).length == 1) {
-					this.clientIsAdmin = true
-				}
+			"game.roomSettigns": {
+				handler() {
+					if (this.game.playerslist[this.game.socket.id].isAdmin == true) {
+						this.game.socket.emit("settings-changed", this.game.roomSettigns)
+						this.oldSettigns = { ...this.game.roomSettigns }
+					}
+				},
+				deep: true,
 			},
 		},
 	}
