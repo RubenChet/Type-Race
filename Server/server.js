@@ -85,7 +85,7 @@ io.on("connection", (socket) => {
 			rooms_list[socket.room].ready++
 			rooms_list[socket.room].arePlaying++
 			if (rooms_list[socket.room].ready > 1 && rooms_list[socket.room].ready == io.sockets.adapter.rooms.get(socket.room).size) {
-				rooms_list[socket.room].wordlist = await scriptFile.makeWordsList(rooms_list[socket.room].settings.langue, rooms_list[socket.room].settings.nbWords)
+				rooms_list[socket.room].wordlist = await scriptFile.makeWordsList(rooms_list[socket.room].settings.langue.toLowerCase(), rooms_list[socket.room].settings.nbWords)
 				rooms_list[socket.room].letters = await scriptFile.makeColors(rooms_list[socket.room].wordlist)
 				Object.values(rooms_list[socket.room].players).map((player) => {
 					player.isReady = false
