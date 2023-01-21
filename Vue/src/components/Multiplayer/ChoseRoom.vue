@@ -20,21 +20,25 @@
 		<div id="InputContainer">
 			<div class="m-4">
 				<H1 class="flex items-start italic -mt-2">Public Room's list :</H1>
-				<div v-for="(room, index) in pubRooms" :key="index" class="mt-2 flex space-x-4 justify-between items-center">
-					<p>{{ room.language }}</p>
-					<p>{{ room.id }}</p>
-					<Knob v-model="room.players" :min="0" :max="10" readonly id="circle" />
-					<div>
-						<Button label="Join" @click="verifJoinRoom(room.id)" class="p-button-info p-button-sm p-button-rounded h-6" />
-					</div>
-				</div>
+				<table class='mt-5'>
+					<tr v-for="(room, index) in pubRooms" :key="index" class="text-[1.1em]">
+						<td><span class="mx-2">{{ room.language }}</span></td>
+						<td><span class="mx-2 text-[0.75em]">{{ room.id }}</span></td>
+						<td>
+							<Knob v-model="room.players" :min="0" :max="10" readonly id="circle" />
+						</td>
+						<td>
+							<Button label="Join" @click="verifJoinRoom(room.id)" class="mx-2 p-button-info p-button-sm p-button-rounded h-6" />
+						</td>
+					</tr>
+				</table>
 			</div>
 		</div>
 		<Divider layout="vertical" />
 		<div id="InputContainer">
 			<div class="m-4">
 				<H1 class="flex items-start italic -mt-2">Create a Private Room :</H1>
-				<div class="mt-3 flex justify-center items-center space-x-3">
+				<div class="mt-3 flex justify-center items-center space-x-5">
 					<button @click="isPublic = true" :class="{ 'line-through': isPublic == false, 'text-white': isPublic == true }">Public</button>
 					<button @click="isPublic = false" :class="{ 'line-through': isPublic == true, 'text-white': isPublic == false }">Private</button>
 					<Button label="Create" @click="CreateRoom()" class="p-button-secondary p-button-sm p-button-rounded h-6" />
@@ -51,7 +55,7 @@
 					<div class="flex items-center">
 						<img src="../../assets/panda_typing.png" class="h-32" alt="" />
 						<div class="text-xl flex-col text-center">
-							<p>Have fun !</p>
+							<p>Have fun</p>
 							<span>🐼🐼</span>
 						</div>
 					</div>
@@ -81,22 +85,22 @@
 				displaykicked: false,
 				pubRooms: [
 					{
-						id: "Room-fr",
+						id: "ROOM-FR",
 						language: "French",
 						players: 10,
 					},
 					{
-						id: "Room-en",
+						id: "ROOM-EN",
 						language: "English",
 						players: 8,
 					},
 					{
-						id: "Room-js",
+						id: "ROOM-JS",
 						language: "JavaScript",
 						players: 6,
 					},
 					{
-						id: "Room-py",
+						id: "ROOM-PY",
 						language: "Python",
 						players: 6,
 					},
@@ -124,7 +128,7 @@
 				this.verifJoinRoom(randomString)
 			},
 			verifJoinRoom(val) {
-				this.game.room = val
+				this.game.room = val.toUpperCase()
 				if (this.game.kickedList.includes(this.game.room)) {
 					this.displaykicked = true
 				} else {
@@ -164,6 +168,6 @@
 </script>
 <style>
 	#circle > svg {
-		height: 50px;
+		height: 45px;
 	}
 </style>

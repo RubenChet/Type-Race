@@ -1,7 +1,8 @@
 <template>
+	<Toast class="w-[38vh] h-[22vh]" />
 	<div v-if="rdy && seconds > 0">{{ seconds }}</div>
 	<GameVue v-else-if="game.isRunning == true" />
-	<div id="WaitRoom" v-else class="flex justify-center space-x-48">
+	<div id="WaitRoom" v-else class="flex justify-center space-x-48 -mt-8">
 		<div id="InputContainer">
 			<div id="chat" class="m-4">
 				<div class="flex justify-center space-x-2">
@@ -54,15 +55,17 @@
 						<h1>Game Settings :</h1>
 						<div class="flex space-x-6 items-center mt-4">
 							<p>Language :</p>
-							<Dropdown v-model="game.roomSettigns.langue" :options="languages"  placeholder="French" />
+							<Dropdown v-model="game.roomSettigns.langue" :options="languages" placeholder="French" />
 						</div>
-						<div class="flex space-x-6 items-center mt-6">
-							<p>Words :</p>
-							<div v-for="value of chose_length" :key="chose_length.key" class="field-radiobutton flex flex-col">
-								<label :for="value.key">{{ value.name }}</label>
-								<RadioButton :inputId="value.key" name="value" :value="value.name" v-model="game.roomSettigns.nbWords" />
-							</div>
-						</div>
+						<table class="flex justify-around items-center mt-5">
+							<h1>Words :</h1>
+							<td v-for="value of chose_length" :key="chose_length.key" class="text-[1.05em]">
+								<tr>{{value.name}}</tr>
+								<tr class="flex justify-center mt-[2px]">
+									<RadioButton :inputId="value.key" name="value" :value="value.name" v-model="game.roomSettigns.nbWords" />
+								</tr>
+							</td>
+						</table>
 						<div id="players" class="flex mx-4 mt-7">
 							<button
 								@click="game.roomSettigns.punctuation = false"
@@ -95,6 +98,8 @@
 	import Button from "primevue/button"
 	import Dropdown from "primevue/dropdown"
 	import RadioButton from "primevue/radiobutton"
+	import Toast from "primevue/toast"
+	import _ from "lodash"
 
 	export default {
 		setup() {
@@ -114,7 +119,7 @@
 					{ name: 50, key: "50" },
 					{ name: 100, key: "100" },
 				],
-				languages: ["French", "English", "JavaScript", "Python" ],
+				languages: ["French", "English", "JavaScript", "Python"],
 				oldSettigns: [],
 			}
 		},
@@ -125,6 +130,7 @@
 			Button,
 			Dropdown,
 			RadioButton,
+			Toast,
 		},
 		methods: {
 			isReady() {
@@ -161,10 +167,23 @@
 				this.clock()
 			})
 			this.game.socket.on("playerslist-update", (val) => {
+				const oldVal = Object.keys(this.game.playerslist)
+				const newVal = Object.keys(val)
+				if (newVal.length > oldVal.length) {
+					const idx = Object.keys(val).length - 1
+					this.$toast.add({ severity: "info", summary: "User Join", detail: Object.values(val)[idx].nickname + " Join the Room", life: 2000 })
+				} else if (newVal.length < oldVal.length) {
+					const difference = _.differenceWith(oldVal, newVal, _.isEqual)[0]
+					const index = oldVal.findIndex((item) => item === difference)
+					this.$toast.add({ severity: "error", summary: "User Left", detail: Object.values(this.game.playerslist)[index].nickname + " Left the Room", life: 2000 })
+				}
+				else{
+				}
 				this.game.playerslist = val
 			})
 			this.game.socket.on("got-kick", () => {
 				this.game.kickedList.push(this.game.room)
+				this.game.playerslist = []
 				this.game.roomState = false
 			})
 			this.game.socket.on("message-update", (val) => {
@@ -212,7 +231,7 @@
 	}
 
 	.PlayerPanel {
-		width: 32vh;
+		width: 34vh;
 		height: 34vh;
 	}
 

@@ -14,8 +14,8 @@
 						}"
 						:style="{ color: game.letters[index][idx] }"
 					>
-						{{ letter }}
-					</p>
+					{{ letter }}
+				</p>
 				</div>
 			</div>
 		</div>

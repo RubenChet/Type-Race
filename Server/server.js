@@ -129,6 +129,8 @@ io.on("connection", (socket) => {
 			} else if (Object.keys(rooms_list[socket.room].players).length == 0) {
 				delete rooms_list[socket.room]
 				console.log("room: " + socket.room + " deleted")
+			}else {
+				io.to(socket.room).emit("playerslist-update", rooms_list[socket.room].players)
 			}
 		}
 	})
