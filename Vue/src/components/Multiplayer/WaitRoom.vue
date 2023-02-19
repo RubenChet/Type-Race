@@ -60,7 +60,11 @@
 						<table class="flex justify-around items-center mt-5">
 							<h1>Words :</h1>
 							<td v-for="value of chose_length" :key="chose_length.key" class="text-[1.05em]">
-								<tr>{{value.name}}</tr>
+								<tr>
+									{{
+										value.name
+									}}
+								</tr>
 								<tr class="flex justify-center mt-[2px]">
 									<RadioButton :inputId="value.key" name="value" :value="value.name" v-model="game.roomSettigns.nbWords" />
 								</tr>
@@ -176,8 +180,7 @@
 					const difference = _.differenceWith(oldVal, newVal, _.isEqual)[0]
 					const index = oldVal.findIndex((item) => item === difference)
 					this.$toast.add({ severity: "error", summary: "User Left", detail: Object.values(this.game.playerslist)[index].nickname + " Left the Room", life: 2000 })
-				}
-				else{
+				} else {
 				}
 				this.game.playerslist = val
 			})

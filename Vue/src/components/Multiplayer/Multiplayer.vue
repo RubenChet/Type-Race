@@ -46,7 +46,7 @@
 			this.game.nickname = localStorage.nickname
 		},
 		created() {
-			this.game.socket = io("http://localhost:3000")
+			this.game.socket = io("https://typezone-socket-io.glitch.me")
 			this.game.socket.on("connect", () => {})
 		},
 		watch: {
